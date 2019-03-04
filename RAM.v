@@ -1,76 +1,77 @@
 // RAM(32bit)
-// input [9:0] Addr, [31:0] data_in, [1:0] Mode, str (write enable),
+// input [9:0] Addr, [31:0] Data_input, [1:0] Mode, str (write enable),
 // sel (select signal, set to 1 bydefault), clk, clr, ld (write enable, set to 1 by default)
-// output data_out[31:0]
+// output Data_output[31:0]
 
+// Definition for signal 'Mode':
+//  00  visit by byte 
+//  01  visit by half-word
+//  10  visit by word
+//  11  (reserved) visit by double-word (64-bit)
 
 `timescale 1ns / 1ps
-//RGY 这个的ld看起来似乎没有用到？ 要不干掉
+`timescale 1ns / 1ps
 
-module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
+module RAM #(parameter ADDR_WIDTH = 12) (Addr, Data_input, Mode, str, sel, clk, clr, ld, Data_output);
     parameter 
-        byte_mode       = 2'b00,
-        dbyte_mode      = 2'b01,
-        word_mode       = 2'b10;
+        Mode_byte       = 2'b00,
+        Mode_halfword   = 2'b01,
+        Mode_word       = 2'b10;
+        // Mode_doubleword = 2'b11;    // reserved
 
-    input [31:0] data_in;
-    input [11:0] Addr;
+    input [ADDR_WIDTH-1:0] Addr;
+    input [31:0] Data_input;
     input [1:0] Mode;
-    input memWrite, sel, clk, clr, ld;
-    output wire [31:0] data_out;
+    input str, sel, clk, clr, ld;
+    output wire [31:0] Data_output;
     
-    reg [12:0] i;
-    reg [31:0] mem [2**10-1:0];
+    reg [2**(ADDR_WIDTH-2)-1:0] i;
+    reg [31:0] mem [2**(ADDR_WIDTH-2)-1:0];
 
-    wire [31:0] select;
+    wire [31:0] select_word;
 
-    wire [11:0]index;
+    wire [ADDR_WIDTH-1:0]index;
 
-    assign index = Addr[11:2];
-    assign select = (sel == 1)?mem[index]:32'h0000_0000;
+    assign index = Addr[ADDR_WIDTH-1:2];
+    assign select_word = (sel == 1)?mem[index]:32'h0000_0000;
 
-    // this would init the RAM
     initial begin
-        for(i = 0; i <= 2**10-1; i = i+1) begin
+        for(i = 0; i <= 2**(ADDR_WIDTH-2)-1; i = i+1) begin
             mem[i] = 32'h0000;
         end 
     end
-    
-    always @(posedge clr)
-    begin
-           for(i = 0; i <= 2**10-1; i = i+1) begin
-                mem[i] = 32'h0000;
-            end 
-    end
 
-    always @(posedge clk)
+    always @(posedge clk or posedge clr)
     begin
         if(clr)begin
-            ;//wait here
+            for(i = 0; i <= 2**(ADDR_WIDTH-2)-1; i = i+1) begin
+                mem[i] = 32'h0000;
+            end 
         end
         else begin
             if(sel) begin
-                if(memWrite) begin
+                // select_word = mem[index];
+                if(str) begin
                     case(Mode)
-                        dbyte_mode: begin
-                            if(Addr[1:1]==0) begin
-                                    mem[index] [15:0] = data_in[15:0];
-                                end //注意，这里的可能不是所以人都需要，如果不需要半字访问/存储的就自己删了
+                        Mode_byte: begin
+                            case(Addr[1:0])
+                                    2'b00: begin mem[index] [7:0] = Data_input[7:0];     end
+                                    2'b01: begin mem[index] [15:8] = Data_input[7:0];    end
+                                    2'b10: begin mem[index] [23:16] = Data_input[7:0];   end
+                                    2'b11: begin mem[index] [31:24] = Data_input[7:0];   end
+                                    default: begin mem[index] [7:0] = Data_input[7:0];   end // TODO
+                            endcase
+                        end
+                        Mode_halfword: begin
+                            if(Addr[1:1]) begin
+                                    mem[index] [31:16] = Data_input[15:0];
+                                end
                                 else begin
-                                    mem[index] [31:16] = data_in[15:0];
+                                    mem[index] [15:0] = Data_input[15:0];
                             end
                         end
-                        word_mode: begin
-                            mem[index] = data_in;
-                        end
-                        byte_mode: begin
-                            case(Addr[1:0])
-                                     0: begin mem[index] [7:0] = data_in[7:0];     end
-                                     1: begin mem[index] [15:8] = data_in[7:0];    end
-                                     2: begin mem[index] [23:16] = data_in[7:0];   end
-                                     3: begin mem[index] [31:24] = data_in[7:0];   end
-                                    default: begin mem[index] [7:0] = data_in[7:0];   end // TODO
-                            endcase
+                        Mode_word: begin
+                            mem[index] = Data_input;
                         end
                         default: begin
                             // do nothing
@@ -82,39 +83,38 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
                 end
             end
             else begin
-                // do nothing
+                // select_word = 32'h00000000;
             end
         end
     end
-    wire [15,0] out_31_16;
-    wire [7:0] out_7_0, out_15_8; 
-//DEBUG 完成后删除这部分
-    // assign out_7_0 = (Mode == dbyte_mode)?((Addr[1] == 1)?select[23:16]:select[7:0]):
-    //                     (Mode == byte_mode)?
-    //                     (
-    //                         (Addr[1:0] == 2'b00)?select[7:0]:
-    //                         (
-    //                             (Addr[1:0] == 2'b01)?select[15:8]:
-    //                             (
-    //                                 (Addr[1:0] == 2'b10)?select[23:16]:
-    //                                 (
-    //                                     select[31:24]
-    //                                 )
-    //                             )
-    //                         )
-    //                     ):select[7:0];
 
-    assign out_7_0 = (Mode == byte_mode)?(
-                 (Addr[1:0] == 2'b00)?select[7:0]:
-                            ((Addr[1:0] == 2'b01)?select[15:8]:
-                                ((Addr[1:0] == 2'b10)?select[23:16]:select[31:24]))):
-                            ((Mode == dbyte_mode)?
-                            ((Addr[1] == 0)?select[7:0]:select[23:16]):select[7:0])
+    wire [7:0] mux_out_7_0, mux_out_15_8, mux_out_23_16, mux_out_31_24; 
+    // wire [7:0] mux_in_7_0_0, mux_in_7_0_1, mux_in_7_0_2, mux_in_7_0_3;
+    wire [7:0] mux_in_15_8_0, mux_in_15_8_1, mux_in_15_8_2, mux_in_15_8_3;
+    // wire [7:0] mux_in_23_16_0, mux_in_23_16_1, mux_in_23_16_2, mux_in_23_16_3;
+    // wire [7:0] mux_in_31_24_0, mux_in_31_24_1, mux_in_31_24_2, mux_in_31_24_3;
+    assign mux_out_7_0 = (Mode == Mode_halfword)?((Addr[1] == 1)?select_word[23:16]:select_word[7:0]):
+                        (Mode == Mode_byte)?
+                        (
+                            (Addr[1:0] == 2'b00)?select_word[7:0]:
+                            (
+                                (Addr[1:0] == 2'b01)?select_word[15:8]:
+                                (
+                                    (Addr[1:0] == 2'b10)?select_word[23:16]:
+                                    (
+                                        select_word[31:24]
+                                    )
+                                )
+                            )
+                        ):select_word[7:0];
 
-    assign out_15_8 = (Mode == byte_mode)?(8'b0):
-                            ((Mode == dbyte_mode)?
-                            ((Addr[1] == 1)?select[31:24]:select[15:8]):select[15:8])
+    assign mux_in_15_8_0 = 8'b0;
+    assign mux_in_15_8_1 = (Addr[1] == 1)?(select_word[31:24]):(select_word[15:8]);
+    assign mux_in_15_8_2 = select_word[15:8];
 
-    assign out_31_16 = (Mode == word_mode)?select[31:16]:16'b0;
-    assign data_out = {out_31_16, out_15_8, out_7_0};
+    Mux_2 inst_mux2(mux_in_15_8_0, mux_in_15_8_1, mux_in_15_8_2, 8'b0, Mode, mux_out_15_8);
+
+    assign mux_out_23_16 = (Mode == Mode_word)?select_word[23:16]:8'b0;
+    assign mux_out_31_24 = (Mode == Mode_word)?select_word[31:24]:8'b0;
+    assign Data_output = {mux_out_31_24, mux_out_23_16, mux_out_15_8, mux_out_7_0};
 endmodule
