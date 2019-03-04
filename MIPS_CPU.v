@@ -49,14 +49,15 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     Data_to_Din din1 (Byte, Signext2, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
     //ALU 相关
     assign X = R1_out;
-    Mux_1 #(32) mux1 (R2_out, imm, Alu_src, Y);
+    // Mux_1 #(32) mux1 (R2_out, imm, Alu_src, Y);
+    assign Y = Alu_src ? imm : R2_out;
     shamt_input shamt1(Order, R1_out, Shift, Lui, shamt);
-    ALU alu1 (X, Y, ALU_OP, shamt, Result1, Result2, OF, UOF, Equal);
+    ALU alu1 (X, Y, ALU_OP, shamt, Result1, Result2, Equal);
     //branch 相关
     Branch branch1(Bne, Beq, Blez, Bgtz, Bz, Equal, Order[16], R1_out , Branch_out);
     //PC相关
     assign target = Order[25:0];
-    PC_data PC_data1(PC, ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
+    PC PC(PC, ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
     PCenable PCenable1 (R1_out, Syscall, Go, clk, enable);
     register PC1 (PC_next_clk, enable,clk,clr,PC);
     //extern
@@ -64,7 +65,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     //计数
     Counter_circle counter_circle1(clk, clr, Branch_out, Jmp, Syscall, R1_out, Count_all, Count_branch, Count_jmp);
     //ROM
-    ROM ROM1(PC[11:0], 0, 2'b10, 0, 1, clk, clr, 1, Order);
+    ROM ROM1(PC[11:0], Order);
     //RAM
     RAM RAM1(Result1[11:0], R2_out, Mode, Memwrite, 1, clk, clr, 1, mem);
 
@@ -72,4 +73,31 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     //Leddata display
     LedData Led1(Syscall, R1_out, R2_out, clk, clr, Leddata);
     // assign Leddata = Order;
+endmodule
+
+
+module register(Data_in,Enable,clk,clr,Data_out);
+    parameter WIDTH = 32;
+    //WIDTH:参数，在实例化时，可以使用此参数扩展Data的位宽
+    input wire [WIDTH-1:0] Data_in;
+    //clr 上升沿 异步清零Data_out
+    //使能端为0时,忽略时钟
+    //使能端为1时,时钟上升沿更新Data_out
+    input wire Enable;
+    input wire clk;
+    input wire clr;
+    output reg [WIDTH-1:0] Data_out;
+    
+    initial begin
+        Data_out = 0;
+    end
+    
+    always @(posedge clr or posedge clk) begin
+        if(clr == 1) begin
+            Data_out = 0;
+        end
+        else if(Enable == 1) begin
+            Data_out = Data_in;
+        end
+    end
 endmodule

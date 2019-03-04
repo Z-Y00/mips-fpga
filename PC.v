@@ -6,7 +6,7 @@ module PC(PC_old, ext_18, jmp_dest, branch, jmp, Jr, RS, PC_next, sequencial_add
     input [25:0] jmp_dest;
     input branch, jmp, Jr;
     input [31:0] RS;
-    output [31:0] PC_next;
+    output reg[31:0] PC_next;
     
     output [31:0] sequencial_addr;
     wire   [31:0] jmp_addr;
@@ -18,7 +18,7 @@ module PC(PC_old, ext_18, jmp_dest, branch, jmp, Jr, RS, PC_next, sequencial_add
     
     always @(*)
     begin
-     PC_next =  (jmp == 1)?jmp_addr:
+    PC_next =  (jmp == 1)?jmp_addr:
                         (branch == 1)?branch_addr:
                              (Jr == 1)?RS:
                         sequencial_addr; 
