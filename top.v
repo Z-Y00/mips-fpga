@@ -5,7 +5,7 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 	input clk;
 	input [2:0] Show;
 	input [1:0] Hz;
-	output wire clk_N;
+	output reg clk_N;
 	output [7:0] SEG,AN;
 	wire [31:0] Leddata,countAll,Count_branch,countJmp;
 	wire [31:0] ledShow;

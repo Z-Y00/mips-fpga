@@ -2,7 +2,7 @@
 module LedData(Syscall, R1, R2, clk, clr, data);
     input Syscall, clk, clr;
     input [31:0] R1, R2;
-    output [31:0]data;
+    output reg [31:0]data;
     wire show;
     assign show = Syscall & (R1 == 34);
     

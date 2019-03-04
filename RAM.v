@@ -86,7 +86,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
             end
         end
     end
-    wire [15,0] out_31_16;
+    wire [15:0] out_31_16;
     wire [7:0] out_7_0, out_15_8; 
 //DEBUG 完成后删除这部分
     // assign out_7_0 = (Mode == dbyte_mode)?((Addr[1] == 1)?select[23:16]:select[7:0]):
@@ -109,11 +109,11 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
                             ((Addr[1:0] == 2'b01)?select[15:8]:
                                 ((Addr[1:0] == 2'b10)?select[23:16]:select[31:24]))):
                             ((Mode == dbyte_mode)?
-                            ((Addr[1] == 0)?select[7:0]:select[23:16]):select[7:0])
+                            ((Addr[1] == 0)?select[7:0]:select[23:16]):select[7:0]);
 
     assign out_15_8 = (Mode == byte_mode)?(8'b0):
                             ((Mode == dbyte_mode)?
-                            ((Addr[1] == 1)?select[31:24]:select[15:8]):select[15:8])
+                            ((Addr[1] == 1)?select[31:24]:select[15:8]):select[15:8]);
 
     assign out_31_16 = (Mode == word_mode)?select[31:16]:16'b0;
     assign data_out = {out_31_16, out_15_8, out_7_0};
