@@ -5,8 +5,8 @@ module control(
     input [5:0]FUNC,
     output wire  [3:0]ALU_OP,
     output wire  Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, Jal, Shift,  Bgtz, 
-    output wire[1:0]Mode,
-	output wire Byte, Signext2//LB , LBU, LH 专门用的，其他人可以删了
+    output wire[1:0]Mode
+	//output wire Byte, Signext2//LB , LBU, LH 专门用的，其他人可以删了
     );
     reg SLL, SRA, SRL, ADD, ADDU, SUB, AND, OR, NOR, SLT, SLTU, JR, SYSCALL, SLLV;
     reg R_type;
