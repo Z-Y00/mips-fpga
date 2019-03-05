@@ -19,7 +19,11 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 
 	show show(clk,ledShow,SEG,AN);	
 	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp);
-	
+	initial begin
+		clk_N = 0;
+		counter = 0;
+		N = 10000;
+	end
 	always @(*) begin 
 		case(Hz)
 			2'b00: N = 10000;

@@ -36,17 +36,19 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
         end 
     end
     
-    always @(posedge clr)
-    begin
-           for(i = 0; i <= 2**10-1; i = i+1) begin
-                mem[i] = 32'h0000;
-            end 
-    end
+    // always @(posedge clr)
+    // begin
+    //        for(i = 0; i <= 2**10-1; i = i+1) begin
+    //             mem[i] = 32'h0000;
+    //         end 
+    // end
 
-    always @(posedge clk)
+    always @(posedge clk or posedge clr)
     begin
         if(clr)begin
-            ;//wait here
+            for(i = 0; i <= 2**10-1; i = i+1) begin
+                mem[i] = 32'h0000;
+            end 
         end
         else begin
             if(sel) begin
