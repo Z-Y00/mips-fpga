@@ -12,7 +12,7 @@ module ALU(
 
 always @(*)
 begin
-	Equal = (x == y);
+	equ = (x == y);
 	case(aluop)
 	0:
 	begin 
