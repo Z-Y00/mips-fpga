@@ -11,8 +11,9 @@ reg [2:0] pos = 0;
 reg [3:0] dig;
 wire clk_N;
 
-divider div(clk, clk_N);
-display_num(dig, pos, 0, 0, seg, an);
+
+divider     div (clk, clk_N);
+display_num display_num_Unit(dig, pos, 0, 0, seg, an);
 
 always @(*)
 begin 

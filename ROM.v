@@ -9,7 +9,8 @@ module ROM (Addr,Data_output);
     assign Data_output = mem[Addr[11:2]];
 
     initial begin
-        $readmemh("D:/data_rom.dat",mem);
+
+        $readmemh("/home/sizheree/workspace/Computer_Orgnization_EXP/mips-fpga/hexcode/r_hex.dat",mem);
     end
 
 endmodule

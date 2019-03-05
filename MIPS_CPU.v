@@ -57,7 +57,8 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     Branch branch1(Bne, Beq, Blez, Bgtz, Bz, Equal, Order[16], R1_out , Branch_out);
     //PC相关
     assign target = Order[25:0];
-    PC PC(PC, ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
+
+    PC PCUnit(PC, ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
     PCenable PCenable1 (R1_out, Syscall, Go, clk, enable);
     register PC1 (PC_next_clk, enable,clk,clr,PC);
     //extern

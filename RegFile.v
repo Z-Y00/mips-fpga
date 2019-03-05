@@ -13,6 +13,13 @@ module RegFile(
 
 reg [31:0]Reg[31:0]; //32个大小为32的寄存器文件
 
+
+integer i;
+initial begin
+  	for (i = 0; i<32 ; i = i+1)
+  		Reg[i] = 0;
+end
+
 always @(posedge clk)
 begin
 	if(WE) Reg[W_num] = Din;//写入

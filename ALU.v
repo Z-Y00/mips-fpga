@@ -11,8 +11,9 @@ module ALU(
     );
 
 always @(*)
-begin
+	begin
 	equ = (x == y);
+
 	case(aluop)
 	0:
 	begin 

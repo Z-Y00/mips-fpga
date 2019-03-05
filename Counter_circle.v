@@ -7,8 +7,9 @@ module Counter_circle(clk, clr, branch, jmp, Syscall, R1, Count_cycle, CountB, C
     wire running;
     assign running = (Syscall & (R1 == 34))|(~Syscall);
 
-    Counter branch(branch, clk, clr, CountB);
-    Counter jmp(jmp, clk, clr, CountJ);
+    Counter branch_c(branch, clk, clr, CountB);
+    Counter jmp_c(jmp, clk, clr, CountJ);
+
     Counter all(running, clk, clr, Count_cycle);
 
 endmodule

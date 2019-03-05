@@ -6,6 +6,11 @@ module LedData(Syscall, R1, R2, clk, clr, data);
     wire show;
     assign show = Syscall & (R1 == 34);
     
+
+    initial begin
+        data = 0;
+    end
+    
     always @(posedge clr or posedge clk) begin
 		if(clr == 1) begin
 			data = 0;
