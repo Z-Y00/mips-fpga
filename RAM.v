@@ -1,13 +1,5 @@
-// RAM(32bit)
-// input [9:0] Addr, [31:0] data_in, [1:0] Mode, str (write enable),
-// sel (select signal, set to 1 bydefault), clk, clr, ld (write enable, set to 1 by default)
-// output data_out[31:0]
-
-
 `timescale 1ns / 1ps
-//RGY 这个的ld看起来似乎没有用到？ 要不干掉
-
-module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
+module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out);
     parameter 
         byte_mode       = 2'b00,
         dbyte_mode      = 2'b01,
@@ -16,7 +8,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
     input [31:0] data_in;
     input [11:0] Addr;
     input [1:0] Mode;
-    input memWrite, sel, clk, clr, ld;
+    input memWrite,  clk, clr;
     output wire [31:0] data_out;
     
     reg [12:0] i;
@@ -27,7 +19,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
     wire [11:0]index;
 
     assign index = Addr[11:2];
-    assign select = (sel == 1)?mem[index]:32'h0000_0000;
+    assign select = mem[index];
 
     // this would init the RAM
     initial begin
@@ -36,13 +28,6 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
         end 
     end
     
-    // always @(posedge clr)
-    // begin
-    //        for(i = 0; i <= 2**10-1; i = i+1) begin
-    //             mem[i] = 32'h0000;
-    //         end 
-    // end
-
     always @(posedge clk or posedge clr)
     begin
         if(clr)begin
@@ -90,22 +75,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
     end
     wire [15:0] out_31_16;
     wire [7:0] out_7_0, out_15_8; 
-//DEBUG 完成后删除这部分
-    // assign out_7_0 = (Mode == dbyte_mode)?((Addr[1] == 1)?select[23:16]:select[7:0]):
-    //                     (Mode == byte_mode)?
-    //                     (
-    //                         (Addr[1:0] == 2'b00)?select[7:0]:
-    //                         (
-    //                             (Addr[1:0] == 2'b01)?select[15:8]:
-    //                             (
-    //                                 (Addr[1:0] == 2'b10)?select[23:16]:
-    //                                 (
-    //                                     select[31:24]
-    //                                 )
-    //                             )
-    //                         )
-    //                     ):select[7:0];
-
+    
     assign out_7_0 = (Mode == byte_mode)?(
                  (Addr[1:0] == 2'b00)?select[7:0]:
                             ((Addr[1:0] == 2'b01)?select[15:8]:
