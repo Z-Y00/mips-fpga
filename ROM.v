@@ -10,7 +10,7 @@ module ROM (Addr,Data_output);
 
     initial begin
 
-        $readmemh("/home/sizheree/workspace/Computer_Orgnization_EXP/mips-fpga/hexcode/r_hex.dat",mem);
+        $readmemh("/home/sizheree/workspace/Computer_Orgnization_EXP/mips-fpga/hexcode/benchmark_ccmb.hex",mem);
     end
 
 endmodule
