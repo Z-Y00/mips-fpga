@@ -36,8 +36,7 @@ module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out);
             end 
         end
         else begin
-            if(sel) begin
-                if(memWrite) begin
+             if(memWrite) begin
                     case(Mode)
                         dbyte_mode: begin
                             if(Addr[1:1]==0) begin
@@ -68,10 +67,6 @@ module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out);
                     // do nothing
                 end
             end
-            else begin
-                // do nothing
-            end
-        end
     end
     wire [15:0] out_31_16;
     wire [7:0] out_7_0, out_15_8; 

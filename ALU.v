@@ -6,10 +6,9 @@ module ALU(
 	input [3:0] aluop,
 	input [4:0] shamt,
 	output reg [31:0] res1,
-	output reg [31:0] res2,
 	output reg equ
     );
-
+ reg [31:0] res2;
 always @(*)
 	begin
 	equ = (x == y);
