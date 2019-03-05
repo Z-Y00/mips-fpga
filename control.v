@@ -91,6 +91,7 @@ module control(
     assign  SW = (OP == 43);
 
 	always @(OP or FUNC) begin	
+		# 3
         if (OP == 0 && SYSCALL == 0)begin
             R_type = 1;
         end

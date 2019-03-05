@@ -18,10 +18,7 @@ module PC(PC_old, ext_18, jmp_dest, branch, jmp, Jr, RS, PC_next, sequencial_add
     
     always @(*)
     begin
-    PC_next =  (jmp == 1)?jmp_addr:
-                        (branch == 1)?branch_addr:
-                             (Jr == 1)?RS:
-                        sequencial_addr; 
+    PC_next =  (jmp == 1)? ((Jr == 1)?RS:jmp_addr) : ((branch == 1)? branch_addr:sequencial_addr) ;
     end
 
 endmodule

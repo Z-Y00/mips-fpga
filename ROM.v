@@ -9,8 +9,7 @@ module ROM (Addr,Data_output);
     assign Data_output = mem[Addr[11:2]];
 
     initial begin
-
-        $readmemh("/home/sizheree/workspace/Computer_Orgnization_EXP/mips-fpga/hexcode/benchmark_ccmb.hex",mem);
+        $readmemh("/home/sizheree/workspace/Computer_Orgnization_EXP/mips-fpga/hexcode/benchmark.hex",mem);
     end
 
 endmodule
