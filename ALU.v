@@ -21,7 +21,7 @@ begin
 	case(aluop)
 	0:
 	begin 
-		res1 <= x << shamt;
+		res1 <= y << shamt;
 		res2 <= 0;
 	end
 	1:
