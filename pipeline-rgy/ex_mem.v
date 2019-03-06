@@ -11,29 +11,21 @@ module ex_mem(
 	input wire[`RegAddrBus]       ex_wd,
 	input wire                    ex_wreg,
 	input wire[`RegBus]					 ex_wdata, 	
-	input wire[`RegBus]           ex_hi,
-	input wire[`RegBus]           ex_lo,
-	input wire                    ex_whilo, 	
 
     input wire[`AluOpBus]        ex_aluop,
 	input wire[`RegBus]          ex_mem_addr,
 	input wire[`RegBus]          ex_reg2,
 
-	input wire[`DoubleRegBus]     hilo_i,	
-	input wire[1:0]               cnt_i,	
+	input wire[1:0]               cnt_in,	
 	
 	output reg[`RegAddrBus]      mem_wd,
 	output reg                   mem_wreg,
 	output reg[`RegBus]					 mem_wdata,
-	output reg[`RegBus]          mem_hi,
-	output reg[`RegBus]          mem_lo,
-	output reg                   mem_whilo,
 
     output reg[`AluOpBus]        mem_aluop,
 	output reg[`RegBus]          mem_mem_addr,
 	output reg[`RegBus]          mem_reg2,
 		
-	output reg[`DoubleRegBus]    hilo_o,
 	output reg[1:0]              cnt_o	
 	
 	
@@ -60,8 +52,8 @@ module ex_mem(
 		  	mem_hi <= 32'h00000000;
 		  	mem_lo <= 32'h00000000;
 		 	mem_whilo <= `WriteDisable;
-	    	hilo_o <= hilo_i;
-			cnt_o <= cnt_i;	
+	    	hilo_o <= hilo_in;
+			cnt_o <= cnt_in;	
   			mem_aluop <= `EXE_NOP_OP;
 			mem_mem_addr <= 32'h00000000;
 			mem_reg2 <= 32'h00000000;						  				    
@@ -78,8 +70,7 @@ module ex_mem(
 			mem_mem_addr <= ex_mem_addr;
 			mem_reg2 <= ex_reg2;			
 		end else begin
-	    	hilo_o <= hilo_i;
-			cnt_o <= cnt_i;											
+			cnt_o <= cnt_in;											
 		end    //if
 	end      //always
 			
