@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
+module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN,probe);
 	input clr,Go;
 	input clk;
 	input [2:0] Show;
@@ -12,6 +12,8 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 	reg [31:0] N;
 	reg [31:0] counter;             
 	wire mod;
+    wire [31:0] mem_probe;
+	input [3:0] probe;
 
 
     initial begin
@@ -20,15 +22,16 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
         counter = 0;
     end
     
-	assign ledShow = (Show == 2'b00) ? Leddata :
-					 (Show == 2'b10) ? countJmp :
-					 (Show == 2'b11) ? Count_branch :
-					 countAll; 
+	assign ledShow = (Show == 3'b000) ? Leddata :
+					 (Show == 3'b010) ? countJmp :
+					 (Show == 3'b001) ? Count_branch :
+					 (Show == 3'b100) ? mem_probe:
+					 	countAll; 
 
 	assign mod = (Show == 2'b00) ? 1'b1 : 1'b0;
 
 	show show(clk,mod,ledShow,SEG,AN);	
-	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp);
+	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp,mem_probe,probe);
 	
 	always @(*) begin 
 		case(Hz)

@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out);
+module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out,mem_probe,probe);
     parameter 
         byte_mode       = 2'b00,
         dbyte_mode      = 2'b01,
@@ -10,6 +10,8 @@ module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out);
     input [1:0] Mode;
     input memWrite,  clk, clr;
     output wire [31:0] data_out;
+    output wire [31:0] mem_probe ;
+    input wire probe;
     
     reg [12:0] i;
     reg [31:0] mem [2**10-1:0];
@@ -17,7 +19,9 @@ module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out);
     wire [31:0] select;
 
     wire [11:0]index;
-
+    
+    assign mem_probe=mem[probe];
+    
     assign index = Addr[11:2];
     assign select = mem[index];
 

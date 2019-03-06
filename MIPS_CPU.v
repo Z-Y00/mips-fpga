@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 
-module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp);
+module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp, mem_probe,probe);
     input clr, clk, Go;
     output [31:0] Leddata;
     output [31:0]Count_cycle, Count_branch, Count_jmp;
-    
+    input [31:0] probe;
     //control接出
     wire Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, 
         Beq, Bne, Jr, Jmp, Jal, Shift,  Bgtz;
@@ -18,6 +18,8 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp);
     wire [4:0]R1_in, R2_in, W_in;
     wire [31:0]R1_out, R2_out, Din;
     wire [31:0] mem;
+    output wire [31:0] mem_probe ;
+
 
     //ALU 
     wire [31:0]X, Y;
@@ -82,7 +84,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp);
 
     ROM ROM1(PC[11:0], instr);
 
-    RAM RAM1(AluResult[11:0], R2_out, Mode, Memwrite, clk, clr,  mem);
+    RAM RAM1(AluResult[11:0], R2_out, Mode, Memwrite, clk, clr,  mem, mem_probe,probe);
 
     //display
     LedData led(Syscall, R1_out, R2_out, clk, clr, Leddata);
