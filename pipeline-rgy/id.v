@@ -1,34 +1,4 @@
-//////////////////////////////////////////////////////////////////////
-////                                                              ////
-//// Copyright (C) 2014 leishangwen@163.com                       ////
-////                                                              ////
-//// This source file may be used and distributed without         ////
-//// restriction provided that this copyright statement is not    ////
-//// removed from the file and that any derivative work contains  ////
-//// the original copyright notice and the associated disclaimer. ////
-////                                                              ////
-//// This source file is free software; you can redistribute it   ////
-//// and/or modify it under the terms of the GNU Lesser General   ////
-//// Public License as published by the Free Software Foundation; ////
-//// either version 2.1 of the License, or (at your option) any   ////
-//// later version.                                               ////
-////                                                              ////
-//// This source is distributed in the hope that it will be       ////
-//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////
-//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////
-//// PURPOSE.  See the GNU Lesser General Public License for more ////
-//// details.                                                     ////
-////                                                              ////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// Module:  id
-// File:    id.v
-// Author:  Lei Silei
-// E-mail:  leishangwen@163.com
-// Description: ����׶�
-// Revision: 1.0
-//////////////////////////////////////////////////////////////////////
+
 
 `include "defines.v"
 
@@ -38,15 +8,15 @@ module id(
 	input wire[`InstAddrBus]			pc_i,
 	input wire[`InstBus]          inst_i,
 
-  //����ִ�н׶ε�ָ���һЩ��Ϣ�����ڽ��load���
+  
   input wire[`AluOpBus]					ex_aluop_i,
 
-	//����ִ�н׶ε�ָ��Ҫд���Ŀ�ļĴ�����Ϣ
+	
 	input wire										ex_wreg_i,
 	input wire[`RegBus]						ex_wdata_i,
 	input wire[`RegAddrBus]       ex_wd_i,
 	
-	//���ڷô�׶ε�ָ��Ҫд���Ŀ�ļĴ�����Ϣ
+	
 	input wire										mem_wreg_i,
 	input wire[`RegBus]						mem_wdata_i,
 	input wire[`RegAddrBus]       mem_wd_i,
@@ -54,16 +24,16 @@ module id(
 	input wire[`RegBus]           reg1_data_i,
 	input wire[`RegBus]           reg2_data_i,
 
-	//�����һ��ָ����ת��ָ���ô��һ��ָ���������ʱ��is_in_delayslotΪtrue
+	
 	input wire                    is_in_delayslot_i,
 
-	//�͵�regfile����Ϣ
+	
 	output reg                    reg1_read_o,
 	output reg                    reg2_read_o,     
 	output reg[`RegAddrBus]       reg1_addr_o,
 	output reg[`RegAddrBus]       reg2_addr_o, 	      
 	
-	//�͵�ִ�н׶ε���Ϣ
+	
 	output reg[`AluOpBus]         aluop_o,
 	output reg[`AluSelBus]        alusel_o,
 	output reg[`RegBus]           reg1_o,
@@ -262,7 +232,7 @@ module id(
 						end
 					endcase	
 					end									  
-		  	`EXE_ORI:			begin                        //ORIָ��
+		  	`EXE_ORI:			begin                        
 		  		wreg_o <= `WriteEnable;		aluop_o <= `EXE_OR_OP;
 		  		alusel_o <= `EXE_RES_LOGIC; reg1_read_o <= 1'b1;	reg2_read_o <= 1'b0;	  	
 					imm <= {16'h0, inst_i[15:0]};		wd_o <= inst_i[20:16];
@@ -521,11 +491,11 @@ module id(
 						end						
 						default:	begin
 						end
-					endcase      //EXE_SPECIAL_INST2 case
+					endcase      
 				end																		  	
 		    default:			begin
 		    end
-		  endcase		  //case op
+		  endcase		  
 		  
 		  if (inst_i[31:21] == 11'b00000000000) begin
 		  	if (op3 == `EXE_SLL) begin
@@ -546,8 +516,8 @@ module id(
 				end
 			end		  
 		  
-		end       //if
-	end         //always
+		end       
+	end         
 	
 
 	always @ (*) begin

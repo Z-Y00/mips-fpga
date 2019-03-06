@@ -1,42 +1,9 @@
-//////////////////////////////////////////////////////////////////////
-////                                                              ////
-//// Copyright (C) 2014 leishangwen@163.com                       ////
-////                                                              ////
-//// This source file may be used and distributed without         ////
-//// restriction provided that this copyright statement is not    ////
-//// removed from the file and that any derivative work contains  ////
-//// the original copyright notice and the associated disclaimer. ////
-////                                                              ////
-//// This source file is free software; you can redistribute it   ////
-//// and/or modify it under the terms of the GNU Lesser General   ////
-//// Public License as published by the Free Software Foundation; ////
-//// either version 2.1 of the License, or (at your option) any   ////
-//// later version.                                               ////
-////                                                              ////
-//// This source is distributed in the hope that it will be       ////
-//// useful, but WITHOUT ANY WARRANTY; without even the implied   ////
-//// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////
-//// PURPOSE.  See the GNU Lesser General Public License for more ////
-//// details.                                                     ////
-////                                                              ////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-// Module:  ex
-// File:    ex.v
-// Author:  Lei Silei
-// E-mail:  leishangwen@163.com
-// Description: ִ�н׶�
-// Revision: 1.0
-//////////////////////////////////////////////////////////////////////
-
 `include "defines.v"
 
 module ex(
 
 	input wire										clr,
 	
-	//�͵�ִ�н׶ε���Ϣ
 	input wire[`AluOpBus]         aluop_i,
 	input wire[`AluSelBus]        alusel_i,
 	input wire[`RegBus]           reg1_i,
@@ -45,16 +12,13 @@ module ex(
 	input wire                    wreg_i,
 	input wire[`RegBus]           inst_i,
 	
-	//HI��LO�Ĵ�����ֵ
 	input wire[`RegBus]           hi_i,
 	input wire[`RegBus]           lo_i,
 
-	//��д�׶ε�ָ���Ƿ�ҪдHI��LO�����ڼ��HI��LO���������
 	input wire[`RegBus]           wb_hi_i,
 	input wire[`RegBus]           wb_lo_i,
 	input wire                    wb_whilo_i,
 	
-	//�ô�׶ε�ָ���Ƿ�ҪдHI��LO�����ڼ��HI��LO���������
 	input wire[`RegBus]           mem_hi_i,
 	input wire[`RegBus]           mem_lo_i,
 	input wire                    mem_whilo_i,
@@ -63,7 +27,7 @@ module ex(
 	input wire[1:0]               cnt_i,
 
 
-	//�Ƿ�ת�ơ��Լ�link address
+	
 	input wire[`RegBus]           link_address_i,
 	input wire                    is_in_delayslot_i,	
 	
@@ -79,12 +43,12 @@ module ex(
 	output reg[1:0]               cnt_o,
 
 
-	//���������ļ��������Ϊ���ء��洢ָ��׼����
+	
 	output wire[`AluOpBus]        aluop_o,
 	output wire[`RegBus]          mem_addr_o,
 	output wire[`RegBus]          reg2_o,
 
-	output reg										stallreq       			
+	output reg					  stallreq       			
 	
 );
 
@@ -107,13 +71,13 @@ module ex(
 	reg[`DoubleRegBus] hilo_temp1;
 	reg stallreq_for_madd_msub;			
 
-    //aluop 送访存
+    
   assign aluop_o = aluop_i;
   
-  //mem_addr 送访存
+  
   assign mem_addr_o = reg1_i + {{16{inst_i[15]}},inst_i[15:0]};
 
- //两个操作数送访存
+ 
   assign reg2_o = reg2_i;
 			
 	always @ (*) begin
@@ -137,8 +101,8 @@ module ex(
 					logicout <= 32'h00000000;
 				end
 			endcase
-		end    //if
-	end      //always
+		end    
+	end      
 
 	always @ (*) begin
 		if(clr == 1) begin
@@ -159,8 +123,8 @@ module ex(
 					shiftres <= 32'h00000000;
 				end
 			endcase
-		end    //if
-	end      //always
+		end    
+	end      
 
 	assign reg2_i_mux = ((aluop_i == `EXE_SUB_OP) || (aluop_i == `EXE_SUBU_OP) ||
 											 (aluop_i == `EXE_SLT_OP) ) 
@@ -226,7 +190,7 @@ module ex(
 		end
 	end
 
-  //ȡ�ó˷������Ĳ�������������з��ų����Ҳ������Ǹ�������ôȡ����һ
+  
 	assign opdata1_mult = (((aluop_i == `EXE_MUL_OP) || (aluop_i == `EXE_MULT_OP) ||
 													(aluop_i == `EXE_MADD_OP) || (aluop_i == `EXE_MSUB_OP))
 													&& (reg1_i[31] == 1'b1)) ? (~reg1_i + 1) : reg1_i;
@@ -252,7 +216,7 @@ module ex(
 		end
 	end
 
-  //�õ����µ�HI��LO�Ĵ�����ֵ���˴�Ҫ���ָ�������������
+  
 	always @ (*) begin
 		if(clr == 1) begin
 			{HI,LO} <= {32'h00000000,32'h00000000};
@@ -269,7 +233,7 @@ module ex(
     stallreq = stallreq_for_madd_msub;
   end
 
-  //MADD��MADDU��MSUB��MSUBUָ��
+  
 	always @ (*) begin
 		if(clr == 1) begin
 			hilo_temp_o <= {32'h00000000,32'h00000000};
@@ -313,7 +277,7 @@ module ex(
 	end	
 
 
-	//MFHI��MFLO��MOVN��MOVZָ��
+	
 	always @ (*) begin
 		if(clr == 1) begin
 	  	moveres <= 32'h00000000;
