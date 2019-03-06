@@ -5,7 +5,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     output [31:0] Leddata;
     output [31:0]Count_all, Count_branch, Count_jmp;
     
-    //control接出的控制信号
+    //controler 
     wire Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, 
         Beq, Bne, Jr, Jmp, Jal, Lui, Bgtz;
     wire [1:0]Mode;
@@ -47,27 +47,26 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     Data_to_Din din_unit (Byte, datamem, Result1, PC_plus_4, Jal, Memtoreg, Din);
     //ALU related
     assign X = R1_out;
-    // Mux_1 #(32) mux1 (R2_out, Imm, Alu_src, Y);
     assign Y = Alu_src ? Imm : R2_out;
     shamt_input shamt_unit(INS, R1_out, Lui, shamt);
     ALU alu_unit (X, Y, ALU_OP, shamt, Result1, Result2, Equal);
+    
     //branch related
     Branch branch_unit(Bne, Beq, Bgtz, Equal, R1_out , Branch_out);
     //PCrelated
     assign target = INS[25:0];
 
     PC PCUnit(PC, PC_ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
-    PCenable PCenable1 (R1_out, Syscall, Go, clk, enable);
-    register PC1 (PC_next_clk, enable,clk,clr,PC);
+    PCenable PCenable_unit (R1_out, Syscall, Go, clk, enable);
+    register PC_unit (PC_next_clk, enable,clk,clr,PC);
     //extern
-    Extern extern1 (INS, Signedext, Imm, PC_ext18);
+    Extern extern_unit (INS, Signedext, Imm, PC_ext18);
     //计数
     Counter_circle counter_circle1(clk, clr, Branch_out, Jmp, Syscall, R1_out, Count_all, Count_branch, Count_jmp);
     //ROM
     ROM ROM1(PC[11:0], INS);
     //RAM
     RAM RAM1(Result1[11:0], R2_out, Mode, Memwrite, 1, clk, clr, 1, datamem);
-
 
     //Leddata display
     LedData Led1(Syscall, R1_out, R2_out, clk, clr, Leddata);
@@ -77,11 +76,11 @@ endmodule
 
 module register(Data_in,Enable,clk,clr,Data_out);
     parameter WIDTH = 32;
-    //WIDTH:参数，在实例化时，可以使用此参数扩展Data的位宽
+    // WIDTH:32
     input wire [WIDTH-1:0] Data_in;
-    //clr 上升沿 异步清零Data_out
-    //使能端为0时,忽略时钟
-    //使能端为1时,时钟上升沿更新Data_out
+    //clr posedge 异步 clear Data_out
+    //Enable为0时,ignore clk
+    //Enable为1时,clk posedge udpate Data_out
     input wire Enable;
     input wire clk;
     input wire clr;

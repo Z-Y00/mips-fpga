@@ -8,34 +8,33 @@ module PCenable(R1_out, Syscall, Go, clk, enable);
 
 endmodule
 
-module Path_ROM_to_Reg(Order, Jal, Regdst, Syscall, R1, R2, W);
-    input [31:0]Order;
+module Path_ROM_to_Reg(INS, Jal, Regdst, Syscall, R1, R2, W);
+    input [31:0]INS;
     input Jal, Regdst;
     input Syscall;
     output [4:0]R1, R2, W;
 
-    assign R1 = (Syscall == 1)?5'b00010 : Order[25:21];
-    assign R2 = (Syscall == 1)?5'b00100 : Order[20:16];
-    assign W = (Regdst == 0)?((Jal == 0)?(Order[20:16]):(5'b11111)):((Jal == 0)?(Order[15:11]):(5'b00000));
-    // 5'b00000 stands for error
+    assign R1 = (Syscall == 1)?5'b00010 : INS[25:21];
+    assign R2 = (Syscall == 1)?5'b00100 : INS[20:16];
+    assign W = (Regdst == 0)?((Jal == 0)?(INS[20:16]):(5'b11111)):((Jal == 0)?(INS[15:11]):(5'b00000));
 endmodule
 
-module shamt_input(Order, R1_out, Lui, shamt);
-    input [31:0] Order;
+module shamt_input(INS, R1_out, Lui, shamt);
+    input [31:0] INS;
     input [31:0] R1_out;
     input  Lui;
     output [4:0]shamt;
-    assign shamt = (Lui == 1) ? 16 : Order [10:6];
+    assign shamt = (Lui == 1) ? 16 : INS [10:6];
 endmodule
 
-module Extern(Order, Signedext, imm, ext18);
-    input [31:0]Order;
+module Extern(INS, Signedext, imm, PC_ext18);
+    input [31:0]INS;
     input Signedext;
-    output [31:0]imm, ext18;
+    output [31:0]imm, PC_ext18;
     wire [15:0]temp;
-    assign temp = Order[15]?16'hFFFF:16'h0;
-    assign imm = (Signedext == 1)?{temp, Order[15:0]}:{16'h0, Order[15:0]};
-    assign ext18 = {temp, Order[15:0]}<<2;
+    assign temp = INS[15]?16'hFFFF:16'h0;
+    assign imm = (Signedext == 1)?{temp, INS[15:0]}:{16'h0, INS[15:0]};
+    assign PC_ext18 = {temp, INS[15:0]}<<2;
 endmodule
 
 module Data_to_Din(Byte, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
@@ -49,7 +48,6 @@ module Data_to_Din(Byte, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
 
     assign Din = (Memtoreg == 1)?mem:
                 (Jal == 1)?PC_plus_4:
-                (Byte == 1)? {24'h0, mem[7:0]}:
-                Result1;
+                (Byte == 1)? {24'h0, mem[7:0]}:Result1;
 
 endmodule

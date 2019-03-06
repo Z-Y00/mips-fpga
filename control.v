@@ -5,13 +5,13 @@ module control(
     output wire  [3:0]ALU_OP,
     output wire  Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, Jal, Lui, Bgtz,
     output wire[1:0]Mode,
-	output wire Byte // LBU 专门用的
+	output wire Byte // LBU specail
     );
     reg SLL, SRA, SRL, ADD, ADDU, SUB, AND, OR, NOR, SLT, SLTU, JR, SYSCALL;
     reg R_type;
 	wire J,JAL,BEQ,BNE,BGTZ,ADDI,ADDIU,SLTI,SLTIU,ANDI,ORI,LUI,LW,LBU,SW;
     initial begin
-		SLL = 0; 
+		SLL = 0;
 		SRA = 0; 
 		SRL = 0; 
 		ADD = 0;
@@ -109,4 +109,5 @@ module control(
 		SLTU = (FUNC == 43);
 		end
 	end
+	
 endmodule
