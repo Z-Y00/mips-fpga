@@ -22,71 +22,51 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-// Module:  openmips_min_sopc
-// File:    openmips_min_sopc.v
+// Module:  pc_reg
+// File:    pc_reg.v
 // Author:  Lei Silei
 // E-mail:  leishangwen@163.com
-// Description: »ùÓÚOpenMIPS´¦ÀíÆ÷µÄÒ»¸ö¼òµ¥SOPC£¬ÓÃÓÚÑéÖ¤¾ß±¸ÁË
-//              wishbone×ÜÏß½Ó¿ÚµÄopenmips£¬¸ÃSOPC°üº¬openmips¡¢
-//              wb_conmax¡¢GPIO controller¡¢flash controller£¬uart 
-//              controller£¬ÒÔ¼°ÓÃÀ´·ÂÕæflashµÄÄ£¿éflashmem£¬ÔÚÆäÖÐ
-//              ´æ´¢Ö¸Áî£¬ÓÃÀ´·ÂÕæÍâ²¿ramµÄÄ£¿édatamem£¬ÔÚÆäÖÐ´æ´¢
-//              Êý¾Ý£¬²¢ÇÒ¾ßÓÐwishbone×ÜÏß½Ó¿Ú    
+// Description: Ö¸ï¿½ï¿½Ö¸ï¿½ï¿½Ä´ï¿½ï¿½ï¿½PC
 // Revision: 1.0
 //////////////////////////////////////////////////////////////////////
 
 `include "defines.v"
 
-module openmips_min_sopc(
+module pc_reg(
 
 	input	wire										clk,
-	input wire										rst
+	input wire										clr,
+
+	//ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+	input wire[5:0]               stall,
+
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¶Îµï¿½ï¿½ï¿½Ï¢
+	input wire                    branch_flag_i,
+	input wire[`RegBus]           branch_target_address_i,
+	
+	output reg[`InstAddrBus]			pc,
+	output reg                    ce
 	
 );
 
-  //Á¬½ÓÖ¸Áî´æ´¢Æ÷
-  wire[`InstAddrBus] inst_addr;
-  wire[`InstBus] inst;
-  wire rom_ce;
-  wire mem_we_i;
-  wire[`RegBus] mem_addr_i;
-  wire[`RegBus] mem_data_i;
-  wire[`RegBus] mem_data_o;
-  wire[3:0] mem_sel_i;  
-  wire mem_ce_i;  
- 
+	always @ (posedge clk) begin
+		if (ce == `ChipDisable) begin
+			pc <= 32'h00000000;
+		end else if(stall[0] == 0) begin
+		  	if(branch_flag_i == `Branch) begin
+					pc <= branch_target_address_i;
+				end else begin
+		  		pc <= pc + 4'h4;
+		  	end
+		end
+	end
 
- openmips openmips0(
-		.clk(clk),
-		.rst(rst),
-	
-		.rom_addr_o(inst_addr),
-		.rom_data_i(inst),
-		.rom_ce_o(rom_ce),
-
-		.ram_we_o(mem_we_i),
-		.ram_addr_o(mem_addr_i),
-		.ram_sel_o(mem_sel_i),
-		.ram_data_o(mem_data_i),
-		.ram_data_i(mem_data_o),
-		.ram_ce_o(mem_ce_i)		
-	
-	);
-	
-	inst_rom inst_rom0(
-		.ce(rom_ce),
-		.addr(inst_addr),
-		.inst(inst)	
-	);
-
-	data_ram data_ram0(
-		.clk(clk),
-		.we(mem_we_i),
-		.addr(mem_addr_i),
-		.sel(mem_sel_i),
-		.data_i(mem_data_i),
-		.data_o(mem_data_o),
-		.ce(mem_ce_i)		
-	);
+	always @ (posedge clk) begin
+		if (clr == 1) begin
+			ce <= `ChipDisable;
+		end else begin
+			ce <= `ChipEnable;
+		end
+	end
 
 endmodule
