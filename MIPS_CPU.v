@@ -4,7 +4,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp, mem
     input clr, clk, Go;
     output [31:0] Leddata;
     output [31:0]Count_cycle, Count_branch, Count_jmp;
-    input [31:0] probe;
+    input [3:0] probe;
     //control接出
     wire Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, 
         Beq, Bne, Jr, Jmp, Jal, Shift,  Bgtz;

@@ -11,7 +11,7 @@ module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out,mem_probe,probe);
     input memWrite,  clk, clr;
     output wire [31:0] data_out;
     output wire [31:0] mem_probe ;
-    input wire probe;
+    input  wire [3:0] probe;
     
     reg [12:0] i;
     reg [31:0] mem [2**10-1:0];
