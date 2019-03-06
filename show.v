@@ -2,6 +2,7 @@
 
 module show(
 	input clk,
+	input mod, 	// 1 repr base 16
 	input [31:0] data,
 	output [7:0] seg,
 	output [7:0] an
@@ -11,7 +12,6 @@ reg [2:0] pos = 0;
 reg [3:0] dig;
 wire clk_N;
 
-
 divider     div (clk, clk_N);
 display_num display_num_Unit(dig, pos, 0, 0, seg, an);
 
@@ -19,21 +19,21 @@ always @(*)
 begin 
 	case(pos)
 	0:
-	dig = data[3:0];
+	dig = mod? data[3:0]:    data % 10;
 	1:
-	dig = data[7:4];
+	dig = mod? data[7:4]:   (data % 100)/10;
 	2:
-	dig = data[11:8];
+	dig = mod? data[11:8]:  (data % 1000)/100;
 	3:
-	dig = data[15:12];
+	dig = mod? data[15:12]: (data % 10000)/1000;
 	4:
-	dig = data[19:16];
+	dig = mod? data[19:16]: (data % 100000)/10000;
 	5:
-	dig = data[23:20];
+	dig = mod? data[23:20]: (data % 1000000)/100000;
 	6:
-	dig = data[27:24];
+	dig = mod? data[27:24]: (data % 10000000)/1000000;
 	7:
-	dig = data[31:28];
+	dig = mod? data[31:28]: (data % 100000000)/10000000;
 	endcase
 end
 

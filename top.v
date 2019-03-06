@@ -11,6 +11,7 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 	wire [31:0] ledShow;
 	reg [31:0] N;
 	reg [31:0] counter;             
+	wire mod;
 
 
     initial begin
@@ -24,7 +25,9 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 					 (Show == 2'b11) ? Count_branch :
 					 countAll; 
 
-	show show(clk,ledShow,SEG,AN);	
+	assign mod = (Show == 2'b00) ? 1'b1 : 1'b0;
+
+	show show(clk,mod,ledShow,SEG,AN);	
 	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp);
 	
 	always @(*) begin 
@@ -35,15 +38,15 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 			2'b11: N = 10000000;
 		endcase
 	end
-//	for DEBUG
-//		always @(*) begin 
-//			case(Hz)
-//				2'b00: N = 2;
-//				2'b01: N = 2;
-//				2'b10: N = 2;
-//				2'b11: N = 2;
-//			endcase
-//		end
+	// for DEBUG
+		// always @(*) begin 
+		// 	case(Hz)
+		// 		2'b00: N = 2;
+		// 		2'b01: N = 2;
+		// 		2'b10: N = 2;
+		// 		2'b11: N = 2;
+		// 	endcase
+		// end
 
 	
 	always @(posedge clk)begin    
