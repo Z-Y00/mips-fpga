@@ -16,18 +16,18 @@ module top_test();
 		clk = 0;
 		clr = 0;
 		Go = 0;
-		Show = 0;
+		Show = 2'b10;
 		Hz = 0;
 		# 5 forever
 		# 10 clk = ~clk;
+		# 10000 
+		clr = 1;
+		# 10 
+		clr = 0;
 	end
-
 
 	initial begin
 		# 30 Go = 1;
-		# 30 Go = 0;
-		# 130000
-		Go = 1;
 		# 30 Go = 0;
 	end
 
