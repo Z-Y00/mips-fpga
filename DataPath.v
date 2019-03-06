@@ -20,13 +20,12 @@ module Path_ROM_to_Reg(Order, Jal, Regdst, Syscall, R1, R2, W);
     // 5'b00000 stands for error
 endmodule
 
-module shamt_input(Order, R1_out, shift, Lui, shamt);
+module shamt_input(Order, R1_out, Lui, shamt);
     input [31:0] Order;
     input [31:0] R1_out;
-    input shift, Lui;
+    input  Lui;
     output [4:0]shamt;
-    assign shamt = (shift == 1) ? R1_out :
-                    (Lui == 1) ? 16 : Order [10:6];
+    assign shamt = (Lui == 1) ? 16 : Order [10:6];
 endmodule
 
 module Extern(Order, Signedext, imm, ext18);
@@ -39,18 +38,18 @@ module Extern(Order, Signedext, imm, ext18);
     assign ext18 = {temp, Order[15:0]}<<2;
 endmodule
 
-module Data_to_Din(Byte, Signext2, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
-    input Byte,Signext2;
+module Data_to_Din(Byte, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
+    input Byte;
     input [31:0] mem, Result1, PC_plus_4;
     input Jal, Memtoreg;
     output [31:0] Din;
-    wire [15:0]temp1;
-    wire [23:0]temp2;
-    assign temp1 = mem[15]?16'hFFFF:16'h0;
-    assign temp2 = mem[7]?24'hFFFFFF:24'h0;
+    wire [1:0] ByteSelect ;
+
+    assign ByteSelect = Result1[1:0];
+
     assign Din = (Memtoreg == 1)?mem:
                 (Jal == 1)?PC_plus_4:
-                (Signext2 == 1)?((Byte == 1)? {temp2, mem[7:0]}:{temp1, mem[15:0]}):
+                (Byte == 1)? {24'h0, mem[7:0]}:
                 Result1;
 
 endmodule

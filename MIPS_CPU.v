@@ -9,7 +9,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     
     //control接出的控制信号
     wire Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, 
-        Beq, Bne, Jr, Jmp, Jal, Shift, Lui, Blez, Bgtz, Bz;
+        Beq, Bne, Jr, Jmp, Jal, Lui, Bgtz;
     wire [1:0]Mode;
     wire [3:0] ALU_OP;
     //控制器相关
@@ -23,7 +23,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     wire [31:0]X, Y;
     wire [4:0] shamt;
     wire [31:0] Result1, Result2;
-    wire UOF, OF;//not used
+    // wire UOF, OF;//not used
     wire Equal;
     wire [31:0]imm;
     //branch 相关
@@ -33,7 +33,7 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     wire [25:0] target;
     wire enable;
 
-    wire Byte, Half, Signext2;
+    wire Byte;
     
     //RAM
     
@@ -42,19 +42,19 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     assign OP = Order[31:26];
     assign Func = Order[5:0];
     control control1(OP, Func, ALU_OP, Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, 
-        Jal, Shift, Lui, Blez, Bgtz, Bz, Mode, Byte, Signext2);
+        Jal, Lui, Bgtz, Mode, Byte);
     //Regfile相关
     Path_ROM_to_Reg rom_to_reg1(Order, Jal, Regdst, Syscall, R1_in, R2_in, W_in);
     RegFile regfile1 (R1_in, R2_in, W_in, Din, Regwrite, clk, R1_out, R2_out);
-    Data_to_Din din1 (Byte, Signext2, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
+    Data_to_Din din1 (Byte, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
     //ALU 相关
     assign X = R1_out;
     // Mux_1 #(32) mux1 (R2_out, imm, Alu_src, Y);
     assign Y = Alu_src ? imm : R2_out;
-    shamt_input shamt1(Order, R1_out, Shift, Lui, shamt);
+    shamt_input shamt1(Order, R1_out, Lui, shamt);
     ALU alu1 (X, Y, ALU_OP, shamt, Result1, Result2, Equal);
     //branch 相关
-    Branch branch1(Bne, Beq, Blez, Bgtz, Bz, Equal, Order[16], R1_out , Branch_out);
+    Branch branch1(Bne, Beq, Bgtz, Equal, R1_out , Branch_out);
     //PC相关
     assign target = Order[25:0];
 

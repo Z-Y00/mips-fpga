@@ -27,15 +27,15 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 	show show(clk,ledShow,SEG,AN);	
 	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp);
 	
-	always @(*) begin 
-		case(Hz)
-			2'b00: N = 10000;
-			2'b01: N = 100000;
-			2'b10: N = 1000000;
-			2'b11: N = 10000000;
-		endcase
-	end
-//	for DEBUG
+	  always @(*) begin 
+	  	case(Hz)
+	  		2'b00: N = 10000;
+	  		2'b01: N = 100000;
+	  		2'b10: N = 1000000;
+	  		2'b11: N = 10000000;
+	  	endcase
+	  end
+	 	//for DEBUG
 //		always @(*) begin 
 //			case(Hz)
 //				2'b00: N = 2;

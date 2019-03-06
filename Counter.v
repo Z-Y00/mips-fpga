@@ -9,8 +9,8 @@ module Counter(running, clk, clr, count);
     end
     
     always @(posedge clk) begin
-        if(running) count=count+1;
-    else if(clr) count=0;
+    	if(clr) count=0;
+    	else if(running) count=count+1;
     end
     
 endmodule
