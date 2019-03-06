@@ -4,76 +4,74 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     input clr, clk, Go;
     output [31:0] Leddata;
     output [31:0]Count_all, Count_branch, Count_jmp;
-    // led temp
-    // assign Leddata = 32'h0000_0000;
     
     //control接出的控制信号
     wire Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, 
         Beq, Bne, Jr, Jmp, Jal, Lui, Bgtz;
     wire [1:0]Mode;
     wire [3:0] ALU_OP;
-    //控制器相关
-    wire [31:0] Order;
+
+    //controler related
+    wire [31:0] INS;
     wire [5:0] OP, Func;
-    //Regfile相关
+    //Regfile related
     wire [4:0]R1_in, R2_in, W_in;
     wire [31:0]R1_out, R2_out, Din;
-    wire [31:0] mem;//**********需结合RAM
-    //ALU 相关
-    wire [31:0]X, Y;
+    wire [31:0] datamem;
+    //ALU related
+    wire [31:0] X, Y;
     wire [4:0] shamt;
     wire [31:0] Result1, Result2;
-    // wire UOF, OF;//not used
     wire Equal;
-    wire [31:0]imm;
-    //branch 相关
+    wire [31:0]Imm;
+
+    //branch related
     wire Branch_out;
-    //PC相关
-    wire [31:0]PC, ext18, PC_next_clk, PC_plus_4;
+    //PC related
+    wire [31:0]PC, PC_ext18, PC_next_clk, PC_plus_4;
     wire [25:0] target;
     wire enable;
 
     wire Byte;
-    
     //RAM
     
 
-    //控制器相关
-    assign OP = Order[31:26];
-    assign Func = Order[5:0];
-    control control1(OP, Func, ALU_OP, Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, 
+    //controler related
+    assign OP = INS[31:26];
+    assign Func = INS[5:0];
+    control control_unit(OP, Func, ALU_OP, Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, 
         Jal, Lui, Bgtz, Mode, Byte);
-    //Regfile相关
-    Path_ROM_to_Reg rom_to_reg1(Order, Jal, Regdst, Syscall, R1_in, R2_in, W_in);
-    RegFile regfile1 (R1_in, R2_in, W_in, Din, Regwrite, clk, R1_out, R2_out);
-    Data_to_Din din1 (Byte, mem, Result1, PC_plus_4, Jal, Memtoreg, Din);
-    //ALU 相关
+    //Regfiles related
+    Path_ROM_to_Reg rom2reg_unit(INS, Jal, Regdst, Syscall, R1_in, R2_in, W_in);
+    RegFile regfile_unit (R1_in, R2_in, W_in, Din, Regwrite, clk, R1_out, R2_out);
+    Data_to_Din din_unit (Byte, datamem, Result1, PC_plus_4, Jal, Memtoreg, Din);
+    //ALU related
     assign X = R1_out;
-    // Mux_1 #(32) mux1 (R2_out, imm, Alu_src, Y);
-    assign Y = Alu_src ? imm : R2_out;
-    shamt_input shamt1(Order, R1_out, Lui, shamt);
-    ALU alu1 (X, Y, ALU_OP, shamt, Result1, Result2, Equal);
-    //branch 相关
-    Branch branch1(Bne, Beq, Bgtz, Equal, R1_out , Branch_out);
-    //PC相关
-    assign target = Order[25:0];
+    // Mux_1 #(32) mux1 (R2_out, Imm, Alu_src, Y);
+    assign Y = Alu_src ? Imm : R2_out;
+    shamt_input shamt_unit(INS, R1_out, Lui, shamt);
+    ALU alu_unit (X, Y, ALU_OP, shamt, Result1, Result2, Equal);
+    //branch related
+    Branch branch_unit(Bne, Beq, Bgtz, Equal, R1_out , Branch_out);
+    //PCrelated
+    assign target = INS[25:0];
 
-    PC PCUnit(PC, ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
+    PC PCUnit(PC, PC_ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
     PCenable PCenable1 (R1_out, Syscall, Go, clk, enable);
     register PC1 (PC_next_clk, enable,clk,clr,PC);
     //extern
-    Extern extern1 (Order, Signedext, imm, ext18);
+    Extern extern1 (INS, Signedext, Imm, PC_ext18);
     //计数
     Counter_circle counter_circle1(clk, clr, Branch_out, Jmp, Syscall, R1_out, Count_all, Count_branch, Count_jmp);
     //ROM
-    ROM ROM1(PC[11:0], Order);
+    ROM ROM1(PC[11:0], INS);
     //RAM
-    RAM RAM1(Result1[11:0], R2_out, Mode, Memwrite, 1, clk, clr, 1, mem);
+    RAM RAM1(Result1[11:0], R2_out, Mode, Memwrite, 1, clk, clr, 1, datamem);
 
 
     //Leddata display
     LedData Led1(Syscall, R1_out, R2_out, clk, clr, Leddata);
-    // assign Leddata = Order;
+    // assign Leddata = INS;
 endmodule
 
 

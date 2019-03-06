@@ -16,7 +16,7 @@ module top_test();
 		clk = 0;
 		clr = 0;
 		Go = 0;
-		Show = 2'b10;
+		Show = 2'b00;
 		Hz = 0;
 		# 5 forever
 		# 10 clk = ~clk;
