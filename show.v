@@ -13,7 +13,7 @@ reg [3:0] dig;
 wire clk_N;
 
 divider     div (clk, clk_N);
-display_num display_num_Unit(dig, pos, 0, 0, seg, an);
+display_num display_num_Unit(dig, pos, 1'b0, 1'b0, seg, an);
 
 always @(*)
 begin 
