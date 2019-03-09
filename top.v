@@ -79,15 +79,7 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN,probe,inter1_in,inter2_in,inter3_in,i
 			2'b11: N = 10000000;
 		endcase
 	end
-	// for DEBUG
-		//  always @(*) begin 
-		//  	case(Hz)
-		//  		2'b00: N = 2;
-		//  		2'b01: N = 2;
-		//  		2'b10: N = 2;
-		//  		2'b11: N = 2;
-		//  	endcase
-		//  end
+
 
 	
 	always @(posedge clk)begin    

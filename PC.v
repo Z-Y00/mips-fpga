@@ -62,23 +62,14 @@ begin
      porcess_inter3 = (interrupt3)&&(~interrupt3_running);
      //#3
 end
-    always @(//posedge interrupt1_done or 
-//             posedge interrupt2_done or 
-//             posedge interrupt3_done or 
-//             posedge interrupt1 or 
-//             posedge interrupt2 or posedge interrupt3 or 
-             posedge clk )
-          //*)
+    always @( posedge clk )
         begin
             if(clr == 1) begin
                  PC_next = 0;
                 end
-            // else if(enable == 1) begin
-            //      PC = PC_next;
-            //   end
+           
             if (porcess_inter1) begin
                 PC_next = 32'h00000038;//中断位置
-                //#800//等待一个时钟周期 sim
                 #4
                 interrupt1_running=1;
 
@@ -96,13 +87,13 @@ end
             end
             else if (interrupt1_done) begin
                 PC_next=PC_store0;
-                //#8                 
+                #4                 
                 interrupt1_running=0;
 
             end
             else if (interrupt2_done) begin
                 PC_next= interrupt1_running ? PC_store1:PC_store0;
-                //#8                 
+                #4                 
                 interrupt2_running=0;
 
             end 
@@ -110,7 +101,7 @@ end
                 PC_next= interrupt2_running ? PC_store2:
                        (interrupt1_running ? PC_store1:
                                              PC_store0);
-                //#8                 
+                #4                 
                 interrupt3_running=0;
 
             end
@@ -123,15 +114,15 @@ end
 
 //当inter2 返回的时候，视当前的1结束了没有，切回backup0/1
 //当inter3 返回的时候，视当前的2/1结束了没有，切回backup0/1/2
-    wire tmp1,tmp2,backup1_using,backup2_using;
+    //wire tmp1,tmp2,backup1_using,backup2_using;
     //0 backup of the user space
-    backup backup0(clk,enable_userBackUp,tmp1,PC_old,PC_store0,tmp2);
+    backup backup0(clk,enable_userBackUp,PC_old,PC_store0);
 
     //1
-    backup backup1(clk,enable_BackUp1,backup1_using,PC_old,PC_store1,interrupt1_done);
+    backup backup1(clk,enable_BackUp1,PC_old,PC_store1);
 
     //2
-    backup backup2(clk,enable_BackUp2,backup2_using,PC_old,PC_store2,interrupt2_done);
+    backup backup2(clk,enable_BackUp2,PC_old,PC_store2);
 
     //3
     //backup backup3();
@@ -142,10 +133,10 @@ endmodule
 module backup(// this will back up the whole CPU state
     input clk,
     input enable,
-    output reg running,// if turned 0, this will be resotred
+    //output reg running,// if turned 0, this will be resotred
     input [31:0] PC_old,//input of PC
-    output [31:0] PC_store,
-    input done
+    output [31:0] PC_store
+    //input done
 );
 initial
 begin
@@ -154,18 +145,18 @@ begin
 end
     reg[31:0] PC;
     assign PC_store = PC;
-    always @(posedge clk)
+    always @(posedge enable)
 
     begin
         if (enable) begin
             PC=PC_old;
         end
-        if ( done) begin
-            running=0;
-        end
-        else begin
-            running=1;
-        end
+//        if ( done) begin
+//            running=0;
+//        end
+//        else begin
+//            running=1;
+//        end
     end
     
 endmodule
