@@ -7,8 +7,6 @@ module top_test();
 	reg [1:0] Hz;
 	wire clk_N;
 	wire [7:0] SEG,AN;
-	wire [31:0] Leddata,countAll,Count_branch,countJmp;
-	wire [31:0] ledShow;
 
 	top top_Unit(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
 
