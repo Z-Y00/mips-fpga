@@ -50,7 +50,7 @@ module PC(
     assign restore_userBackUp=interrupt1_done||
                             (interrupt2_done&&(!interrupt1_running))||
                             (interrupt3_done&&(!interrupt1_running)&&(!interrupt2_running));
-    assign restore_BackUp1 = (interrupt2_done||interrupt3_done) && interrupt1_running;
+    assign restore_BackUp1 = (interrupt2_done&& interrupt1_running)||(interrupt3_done && interrupt1_running && (!interrupt2_running));
     assign restore_BackUp2 = interrupt3_done && interrupt2_running;
 
              
