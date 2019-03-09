@@ -2,6 +2,8 @@
 
 module PC(
     input clk,
+    input clr,
+    input enable,
      input interrupt1,
     output reg interrupt1_running,//上升延是这个backup结束的时候置的
     input interrupt1_done,//op发现这个结束的指令的时候，置1
@@ -54,46 +56,53 @@ module PC(
              
     always @(posedge clk)
 begin
-    //#3
+    #3
      porcess_inter1 = (~(interrupt1_running||interrupt2_running||interrupt3_running))&&(interrupt1);
      porcess_inter2 =((~interrupt2_running))&&(interrupt2)&&(~interrupt3_running);
      porcess_inter3 = (interrupt3)&&(~interrupt3_running);
+     //#3
 end
     always @(//posedge interrupt1_done or 
 //             posedge interrupt2_done or 
 //             posedge interrupt3_done or 
 //             posedge interrupt1 or 
 //             posedge interrupt2 or posedge interrupt3 or 
-          //   posedge clk)
-          *)
+             posedge clk )
+          //*)
         begin
+            if(clr == 1) begin
+                 PC_next = 0;
+                end
+            // else if(enable == 1) begin
+            //      PC = PC_next;
+            //   end
             if (porcess_inter1) begin
-                PC_next = 32'h00003038;//中断位置
-                #80//等待一个时钟周期
-                //#400000
+                PC_next = 32'h00000038;//中断位置
+                //#800//等待一个时钟周期 sim
+                #4
                 interrupt1_running=1;
 
             end
-            if (porcess_inter2) begin
-                PC_next = 32'h00003070;//中断位置
-                #80
+            else if (porcess_inter2) begin
+                PC_next = 32'h00000070;//中断位置
+                #4
                 interrupt2_running=1;
 
             end
-            if (porcess_inter3) begin
-                PC_next = 32'h000030a8;//中断位置
-                #80
+            else if (porcess_inter3) begin
+                PC_next = 32'h00000a8;//中断位置
+                #4
                 interrupt3_running=1;
             end
-            if (interrupt1_done) begin
+            else if (interrupt1_done) begin
                 PC_next=PC_store0;
-                #80
+                //#8                 
                 interrupt1_running=0;
 
             end
             else if (interrupt2_done) begin
                 PC_next= interrupt1_running ? PC_store1:PC_store0;
-                #80
+                //#8                 
                 interrupt2_running=0;
 
             end 
@@ -101,7 +110,7 @@ end
                 PC_next= interrupt2_running ? PC_store2:
                        (interrupt1_running ? PC_store1:
                                              PC_store0);
-                #80
+                //#8                 
                 interrupt3_running=0;
 
             end
@@ -116,13 +125,13 @@ end
 //当inter3 返回的时候，视当前的2/1结束了没有，切回backup0/1/2
     wire tmp1,tmp2,backup1_using,backup2_using;
     //0 backup of the user space
-    backup backup0(clk,enable_userBackUp,tmp1,PC_next,PC_store0,tmp2);
+    backup backup0(clk,enable_userBackUp,tmp1,PC_old,PC_store0,tmp2);
 
     //1
-    backup backup1(clk,enable_BackUp1,backup1_using,PC_next,PC_store1,interrupt1_done);
+    backup backup1(clk,enable_BackUp1,backup1_using,PC_old,PC_store1,interrupt1_done);
 
     //2
-    backup backup2(clk,enable_BackUp2,backup2_using,PC_next,PC_store2,interrupt2_done);
+    backup backup2(clk,enable_BackUp2,backup2_using,PC_old,PC_store2,interrupt2_done);
 
     //3
     //backup backup3();

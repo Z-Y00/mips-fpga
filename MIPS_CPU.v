@@ -36,13 +36,13 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp,
     wire Branch_out;
     
     //PC
-    reg  [31:0]PC;
+    wire  [31:0]PC;
     wire [31:0] ext18, PC_next, PC_plus_4,PC_next_normal;
     wire [25:0] target;
     wire enable;
-    initial begin
-        PC=0;
-    end
+//    initial begin
+//        PC=0;
+//    end
 
     //控制器
     assign OP = instr[31:26];
@@ -88,8 +88,8 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp,
 
     //PC
     assign target = instr[25:0];
-
-    PC PCUnit(clk,
+    assign enable = (R1_out == 32'h00000022) | ~Syscall | Go ;
+    PC PCUnit(clk,clr,enable,
                             interrupt1, interrupt1_running, interrupt1_done,
                             interrupt2,interrupt2_running, interrupt2_done,
                             interrupt3, interrupt3_running,interrupt3_done,
@@ -99,16 +99,12 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_cycle, Count_branch, Count_jmp,
                             PC, ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next, PC_plus_4);
 
     //PC enable
-    assign enable = (R1_out == 32'h00000022) | ~Syscall | Go ;
-
-        always @(posedge clr or posedge clk) begin
-        if(clr == 1) begin
-            PC = 0;
-        end
-        else if(enable == 1) begin
-            PC = PC_next;
-        end
-    end
+//    always @(*)
+assign PC=PC_next;
+//    end
+    //     always @(posedge clr or posedge clk) begin
+        
+    // end
 
     //extern
     Extern extern1 (instr, Signedext, imm, ext18);

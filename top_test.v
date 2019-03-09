@@ -24,47 +24,47 @@ module top_test();
 		inter1=0;
 		inter2=0;
 		inter3=0;
-		#5 forever
-		#10 clk = ~clk;
+		#1 forever
+		#1 clk = ~clk;
 	end
 
 	initial begin
 
 		//用来检测高级打断低级
 		//3-》1
-		//  # 30 Go = 1;
-		//  # 1 inter1=1;
-   		//  # 80 inter1=0;
-   		//  # 120 inter3=1;
-   		//  # 89 inter3=0;
+		 # 30 Go = 1;
+		 # 90 inter1=1;
+   		 # 1 inter1=0;
+   		 //# 120 inter3=1;
+   		 //# 1 inter3=0;
 		// 	//3-》2
 		//  # 30 Go = 1;
 		//  # 1 inter2=1;
-   		//  # 80 inter2=0;
-   		//  # 120 inter3=1;
-   		//  # 89 inter3=0;
+   		//  # 1 inter2=0;
+   		//   # 190 inter3=1;
+   		//   # 1 inter3=0;
 		//2-》1
 		//  # 30 Go = 1;
 		//  # 1 inter1=1;
-   		//  # 80 inter1=0;
+   		//  # 1 inter1=0;
    		//  # 120 inter2=1;
-   		//  # 89 inter2=0;
+   		//  # 1 inter2=0;
 
 		//用来检测每个级别的中断
 		//  # 30 Go = 1;
 		//  # 1 inter1=1;
    		//  # 80 inter1=0;
 
-		//  # 30 Go = 1;
-   		//  # 1 inter3=1;
-   		//  # 89 inter3=0;
+		//   # 30 Go = 1;
+		//  # 1 inter3=1;
+   		//   # 1 inter3=0;
 
 		   //用来检测高级中断的时候，发生了低级中断
-		 # 30 Go = 1;
-		 # 1 inter3=1;
-   		 # 80 inter3=0;
-   		 # 120 inter1=1;
-   		 # 89 inter1=0;
+		//  # 30 Go = 1;
+		//  # 1 inter3=1;
+   		//  # 1 inter3=0;
+   		//  # 120 inter1=1;
+   		//  # 1 inter1=0;
 
 	end
 
