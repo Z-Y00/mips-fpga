@@ -44,7 +44,7 @@ module PC(
      end
 
     assign enable_userBackUp=(~(interrupt1_running||interrupt2_running||interrupt3_running))&&(interrupt1||interrupt2||interrupt3);
-    assign enable_BackUp1=((interrupt1_running))&&(interrupt2||interrupt3);
+    assign enable_BackUp1=((interrupt1_running))&&(interrupt2||interrupt3)&&(!interrupt2_running);
     assign enable_BackUp2=((interrupt2_running))&&(interrupt3);
 
     assign restore_userBackUp=interrupt1_done||
@@ -140,7 +140,7 @@ module backup(// this will back up the whole CPU state
 );
 initial
 begin
-    running=0;
+    //running=0;
     PC=0;
 end
     reg[31:0] PC;

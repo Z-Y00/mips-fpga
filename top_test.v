@@ -32,11 +32,11 @@ module top_test();
 
 		//用来检测高级打断低级
 		//3-》1
-		 # 30 Go = 1;
-		 # 90 inter1=1;
-   		 # 1 inter1=0;
-   		 # 800 inter3=1;
-   		 # 1 inter3=0;
+		//  # 30 Go = 1;
+		//  # 90 inter1=1;
+   		//  # 1 inter1=0;
+   		//  # 800 inter3=1;
+   		//  # 1 inter3=0;
 		// 	//3-》2
 		//  # 30 Go = 1;
 		//  # 1 inter2=1;
@@ -49,7 +49,14 @@ module top_test();
    		//  # 1 inter1=0;
    		//  # 120 inter2=1;
    		//  # 1 inter2=0;
-
+		//3->2-》1
+		 # 30 Go = 1;
+		 # 90 inter1=1;
+   		 # 1 inter1=0;
+   		 # 120 inter2=1;
+   		 # 1 inter2=0;
+		# 120 inter3=1;
+   		 # 1 inter3=0;
 		//用来检测每个级别的中断
 		//  # 30 Go = 1;
 		//  # 1 inter1=1;
