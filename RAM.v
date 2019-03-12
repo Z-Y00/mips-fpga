@@ -7,7 +7,7 @@
 `timescale 1ns / 1ps
 //RGY 这个的ld看起来似乎没有用到？ 要不干掉
 
-module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
+module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out, ShowRam, ShowRam_addr, ShowRam_data);
     parameter 
         byte_mode       = 2'b00,
         dbyte_mode      = 2'b01,
@@ -16,18 +16,23 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
     input [31:0] data_in;
     input [11:0] Addr;
     input [1:0] Mode;
+    input ShowRam;
+    input [31:0] ShowRam_addr;
     input memWrite, sel, clk, clr, ld;
     output wire [31:0] data_out;
+    output [31:0] ShowRam_data;
     
     reg [12:0] i;
     reg [31:0] mem [2**8-1:0];
 
     wire [31:0] select;
 
-    wire [11:0]index;
+    wire [9:0]index;
 
-    assign index = Addr[11:2];
+    assign index = Addr[9:2];
     assign select = (sel == 1)?mem[index]:32'h0000_0000;
+
+    assign ShowRam_data = ShowRam ? mem[ShowRam_addr[9:2]] : 32'h0000_0000;
 
     // this would init the RAM
     initial begin

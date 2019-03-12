@@ -1,9 +1,12 @@
 `timescale 1ns / 1ps
 
-module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
+module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp, ShowRam, ShowRam_addr, ShowRam_data);
     input clr, clk, Go;
+    input ShowRam;
+    input [31:0]  ShowRam_addr;
     output [31:0] Leddata;
-    output [31:0]Count_all, Count_branch, Count_jmp;
+    output [31:0] Count_all, Count_branch, Count_jmp;
+    output [31:0] ShowRam_data;
     
     //PC related
     wire enable;
@@ -138,7 +141,8 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
 
     //PCrelated
     //RAM
-    RAM RAM_unit(ALUres_MEM[11:0], R2_MEM, Mode_MEM, Memwrite_MEM, 1, clk, clr, 1, MEMres);
+    //for show RAM
+    RAM RAM_unit(ALUres_MEM[11:0], R2_MEM, Mode_MEM, Memwrite_MEM, 1, clk, clr, 1, MEMres, ShowRam, ShowRam_addr, ShowRam_data);
     assign MEMD_MEM = Byte_MEM ? {24'h0, MEMres[7:0]}: MEMres;
     assign PC_plus_4_MEM = PC_MEM + 4;
 

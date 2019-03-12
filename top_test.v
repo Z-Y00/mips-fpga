@@ -5,10 +5,11 @@ module top_test();
 	reg clk;
 	reg [2:0] Show;
 	reg [1:0] Hz;
+	reg ShowRam;
 	wire clk_N;
 	wire [7:0] SEG,AN;
 
-	top top_Unit(clr,Go,clk,Show,Hz,clk_N,SEG,AN);
+	top top_Unit(clr,Go,clk,Show,Hz,clk_N,SEG,AN, ShowRam);
 
 	initial begin
 		clk = 0;
@@ -16,6 +17,7 @@ module top_test();
 		Go = 0;
 		Show = 2'b00;
 		Hz = 0;
+		ShowRam = 0;
 		# 5 forever
 		# 10 clk = ~clk;
 		# 10000 
@@ -28,7 +30,7 @@ module top_test();
 		# 30 Go = 1;
 		# 30 Go = 0;
 		# 190000
-		Go = 1;
+		ShowRam = 1;
 	end
 
 endmodule
