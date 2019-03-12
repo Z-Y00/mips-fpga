@@ -1,0 +1,14 @@
+RegFile to EX:
+WR Foward Imm Shamt 
+
+Relocate R1 R2;
+R1 R2 ALUres_MEM Din_WB, PC+1_MEM  Forward_R1, Forward_R2
+
+MEM_EX : 
+
+忘了将寄存器文件的上升沿改为下降沿
+MEMD_R = Bubble? 0: MEMD_IN;
+halt + exit = R1!=34
+
+//error assign Halt_EX = Syscall_EX && ((R1_EX == 50) || (R1_EX == 10));
+assign Halt_EX = Syscall_EX && ((R1_reloc == 50) || (R1_reloc == 10));

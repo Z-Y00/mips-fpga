@@ -5,7 +5,6 @@ module LedData(Syscall, R1, R2, clk, clr, data);
     output reg [31:0]data;
     wire show;
     assign show = Syscall & (R1 == 34);
-    
 
     initial begin
         data = 0;

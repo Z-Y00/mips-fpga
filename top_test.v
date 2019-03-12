@@ -27,6 +27,8 @@ module top_test();
 	initial begin
 		# 30 Go = 1;
 		# 30 Go = 0;
+		# 190000
+		Go = 1;
 	end
 
 endmodule

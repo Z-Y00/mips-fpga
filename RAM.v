@@ -20,7 +20,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
     output wire [31:0] data_out;
     
     reg [12:0] i;
-    reg [31:0] mem [2**10-1:0];
+    reg [31:0] mem [2**8-1:0];
 
     wire [31:0] select;
 
@@ -31,7 +31,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
 
     // this would init the RAM
     initial begin
-        for(i = 0; i <= 2**10-1; i = i+1) begin
+        for(i = 0; i <= 2**8-1; i = i+1) begin
             mem[i] = 32'h0000;
         end 
     end
@@ -46,7 +46,7 @@ module RAM (Addr, data_in, Mode, memWrite, sel, clk, clr, ld, data_out);
     always @(posedge clk or posedge clr)
     begin
         if(clr)begin
-            for(i = 0; i <= 2**10-1; i = i+1) begin
+            for(i = 0; i <= 2**8-1; i = i+1) begin
                 mem[i] = 32'h0000;
             end 
         end

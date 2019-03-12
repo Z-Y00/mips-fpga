@@ -20,7 +20,7 @@ initial begin
   		Reg[i] = 0;
 end
 
-always @(posedge clk)
+always @(negedge clk)
 begin
 	if(WE) Reg[W_num] = Din;//写入
 end

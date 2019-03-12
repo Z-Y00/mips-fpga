@@ -5,74 +5,162 @@ module MIPS_CPU(clr, Go, clk, Leddata, Count_all, Count_branch, Count_jmp);
     output [31:0] Leddata;
     output [31:0]Count_all, Count_branch, Count_jmp;
     
-    //controler 
-    wire Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, 
-        Beq, Bne, Jr, Jmp, Jal, Lui, Bgtz;
-    wire [1:0]Mode;
-    wire [3:0] ALU_OP;
-
-    //controler related
-    wire [31:0] INS;
-    wire [5:0] OP, Func;
-    //Regfile related
-    wire [4:0]R1_in, R2_in, W_in;
-    wire [31:0]R1_out, R2_out, Din;
-    wire [31:0] datamem;
-    //ALU related
-    wire [31:0] X, Y;
-    wire [4:0] shamt;
-    wire [31:0] Result1, Result2;
-    wire Equal;
-    wire [31:0]Imm;
-
-    //branch related
-    wire Branch_out;
     //PC related
-    wire [31:0]PC, PC_ext18, PC_next_clk, PC_plus_4;
-    wire [25:0] target;
     wire enable;
-
-    wire Byte;
     //RAM
     
+    //---------IF------------------
+    wire [31:0] PC_IF, IR_IF;
 
-    //controler related
-    assign OP = INS[31:26];
-    assign Func = INS[5:0];
-    control control_unit(OP, Func, ALU_OP, Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, 
-        Jal, Lui, Bgtz, Mode, Byte);
-    //Regfiles related
-    Path_ROM_to_Reg rom2reg_unit(INS, Jal, Regdst, Syscall, R1_in, R2_in, W_in);
-    RegFile regfile_unit (R1_in, R2_in, W_in, Din, Regwrite, clk, R1_out, R2_out);
-    Data_to_Din din_unit (Byte, datamem, Result1, PC_plus_4, Jal, Memtoreg, Din);
-    //ALU related
-    assign X = R1_out;
-    assign Y = Alu_src ? Imm : R2_out;
-    shamt_input shamt_unit(INS, R1_out, Lui, shamt);
-    ALU alu_unit (X, Y, ALU_OP, shamt, Result1, Result2, Equal);
+    //---------ID------------------
+    wire [5:0] OP_ID, Func_ID;
+    wire [31:0] PC_ID, IR_ID;
+    wire [3:0] ALUOP_ID;
+
+
+    wire  Memtoreg_ID, Memwrite_ID, Alu_src_ID, Regwrite_ID, Syscall_ID, Signedext_ID, Regdst_ID, Beq_ID, Bne_ID, Jr_ID, Jmp_ID, Jal_ID, Lui_ID, Bgtz_ID;
+    wire [1:0] Mode_ID;
+    wire Byte_ID;
+
+    wire [4:0] R1_in_ID, R2_in_ID;
+    wire [31:0]R1_out_ID, R2_out_ID;
+
+    wire [4:0] WR_ID, Shamt_ID;
+    wire [31:0] Imm_ID;
+
+    wire [14:0] Control_Sig_EX_IN;
+    wire [1:0] Forward_R1, Forward_R2;
+    wire Load_use, Reg_related;
+
+    //-----------------------------------EX---------------------------------------------------
+    wire [31:0] PC_EX, IR_EX, R1_EX, R2_EX, Imm_EX;
+    wire  [3:0] ALUOP_EX, Forward_EX;
+    wire [4:0]  Shamt_EX, WR_EX;
+    wire [14:0] Control_Sig_EX;
     
-    //branch related
-    Branch branch_unit(Bne, Beq, Bgtz, Equal, R1_out , Branch_out);
-    //PCrelated
-    assign target = INS[25:0];
+    wire  [2:0] WB_EX;
+    wire  [3:0] MEM_EX;
+    wire  Alu_src_EX, Syscall_EX;
+    wire RegWrite_EX, Memtoreg_EX, Beq_EX, Bne_EX, Jr_EX, Jmp_EX, Jal_EX, Bgtz_EX;
 
-    PC PCUnit(PC, PC_ext18, target, Branch_out, Jmp, Jr, R1_out, PC_next_clk, PC_plus_4);
-    PCenable PCenable_unit (R1_out, Syscall, Go, clk, enable);
-    register PC_unit (PC_next_clk, enable,clk,clr,PC);
-    //extern
-    Extern extern_unit (INS, Signedext, Imm, PC_ext18);
-    //计数
-    Counter_circle counter_circle1(clk, clr, Branch_out, Jmp, Syscall, R1_out, Count_all, Count_branch, Count_jmp);
+    wire [31:0] R1_reloc, R2_reloc;
+    wire [31:0] X, Y;
+    wire [31:0] ALUres_EX;
+    wire Equal_EX;
+    wire Branch_out_EX, BJ_EX;
+    wire [31:0] J_addr_EX, PC_Branch_EX; 
+    wire [31:0] Leddata;
+    wire Halt_EX;
+    wire [9:0] Control_Sig_MEM_IN;
+    //---------------------------------MEM---------------------------------------------------
+    wire [31:0] PC_MEM, IR_MEM, ALUres_MEM, R2_MEM;
+    wire [4:0]  WR_MEM;
+
+    wire [9:0] Control_Sig_MEM;
+    wire [2:0] WB_MEM;
+    wire RegWrite_MEM, Memwrite_MEM, Byte_MEM, Jal_MEM, Halt_MEM, Syscall_MEM;
+    wire [1:0] Mode_MEM;
+
+    wire [31:0] MEMres, MEMD_MEM;
+    wire [31:0] PC_plus_4_MEM;
+
+    wire [5:0] Control_Sig_WB_IN;
+    //---------------------------------WB----------------------------------------------
+    wire [31:0] PC_WB, IR_WB, ALUres_WB, MEMD_WB;
+    wire [4:0]  WR_WB;
+
+    wire [5:0] Control_Sig_WB;
+    wire  Regwrite_WB, Regdst_WB, Memtoreg_WB, Jal_WB, Halt_WB, Syscall_WB;
+
+    wire [31:0] Din_WB, PC_next;
+
+
+
+    //---------IF------------------
     //ROM
-    ROM ROM1(PC[11:0], INS);
-    //RAM
-    RAM RAM1(Result1[11:0], R2_out, Mode, Memwrite, 1, clk, clr, 1, datamem);
+    ROM ROM_unit(PC_IF[11:0], IR_IF);
+    // IF/ID
+    IF_ID IF_ID_unit(clk, clr, Load_use ^ enable, BJ_EX, 
+            PC_IF, IR_IF,
+            PC_ID, IR_ID);
+
+    //---------ID------------------
+    assign OP_ID   = IR_ID[31:26];
+    assign Func_ID = IR_ID[5:0];
+
+    control control_unit(OP_ID, Func_ID, ALUOP_ID, Memtoreg_ID, Memwrite_ID, Alu_src_ID, Regwrite_ID, Syscall_ID, Signedext_ID, Regdst_ID, Beq_ID, Bne_ID, Jr_ID, Jmp_ID, 
+        Jal_ID, Lui_ID, Bgtz_ID, Mode_ID, Byte_ID);
+
+    //Regfiles related
+    
+    Path_ROM_to_Reg rom2reg_unit(IR_ID, Syscall_ID, R1_in_ID, R2_in_ID);
+    RegFile regfile_unit (R1_in_ID, R2_in_ID, WR_WB, Din_WB, Regwrite_WB, clk, R1_out_ID, R2_out_ID);
+
+    Path_Reg_to_EX reg2ex_unit(IR_ID, Regdst_ID, Jal_ID, Lui_ID, Signedext_ID, WR_ID, Imm_ID, Shamt_ID);
+
+    Relocate_Forward forward_unit(OP_ID, Func_ID, WR_EX, WR_MEM, RegWrite_EX, RegWrite_MEM, R1_in_ID, R2_in_ID, Jal_EX, Memtoreg_EX,
+                        Forward_R1, Forward_R2, Load_use, Reg_related);
+
+    assign Control_Sig_EX_IN = {Regwrite_ID, Regdst_ID, Memtoreg_ID, Memwrite_ID, Mode_ID, Byte_ID, Beq_ID, Bne_ID, Bgtz_ID, Jr_ID, Jmp_ID, Jal_ID, Alu_src_ID, Syscall_ID};
+    //-----------------------------------EX---------------------------------------------------
+    ID_EX ID_EX_unit(clk, clr, enable , Load_use || BJ_EX, 
+             PC_ID, IR_ID, R1_out_ID, R2_out_ID, ALUOP_ID, Shamt_ID, WR_ID, {Forward_R2, Forward_R1}, Imm_ID, Control_Sig_EX_IN,
+             PC_EX, IR_EX, R1_EX, R2_EX,         ALUOP_EX, Shamt_EX, WR_EX, Forward_EX,               Imm_EX, Control_Sig_EX);
+
+    assign  {WB_EX, MEM_EX, Beq_EX, Bne_EX, Bgtz_EX, Jr_EX, Jmp_EX, Jal_EX, Alu_src_EX, Syscall_EX} = Control_Sig_EX;
+
+    Relocate_R1R2 relocate_unit(R1_EX, R2_EX, ALUres_MEM, Din_WB, PC_plus_4_MEM, Forward_EX, R1_reloc, R2_reloc);
+    assign RegWrite_EX = WB_EX[2];
+    assign Memtoreg_EX = WB_EX[0];
+
+    //ALU related
+    assign X = R1_reloc;
+    assign Y = Alu_src_EX ? Imm_EX : R2_reloc;
+    ALU alu_unit (X, Y, ALUOP_EX, Shamt_EX, ALUres_EX, , Equal_EX);
+
+    //branch related
+    Branch branch_unit(Bne_EX, Beq_EX, Bgtz_EX, Equal_EX, R1_reloc , Branch_out_EX);
+    PC_Branch BJ_addr_unit(IR_EX, PC_EX, J_addr_EX, PC_Branch_EX);
 
     //Leddata display
-    LedData Led1(Syscall, R1_out, R2_out, clk, clr, Leddata);
-    // assign Leddata = INS;
-endmodule
+    LedData Led_unit(Syscall_EX, R1_reloc, R2_reloc, clk, clr, Leddata);
 
+    assign Halt_EX = Syscall_EX && ((R1_reloc == 50) || (R1_reloc == 10));
+    assign BJ_EX = Branch_out_EX || Jmp_EX;
+
+    assign Control_Sig_MEM_IN = {WB_EX, MEM_EX, Jal_EX, Halt_EX, Syscall_EX};
+    EX_MEM EX_MEM_unit(clk, clr, enable, 0, 
+         PC_EX,  IR_EX,  ALUres_EX,  R2_reloc,  WR_EX, Control_Sig_MEM_IN, 
+         PC_MEM, IR_MEM, ALUres_MEM, R2_MEM,    WR_MEM, Control_Sig_MEM);
+    //---------------------------------MEM---------------------------------------------------
+    assign {WB_MEM, Memwrite_MEM, Mode_MEM, Byte_MEM, Jal_MEM, Halt_MEM, Syscall_MEM} = Control_Sig_MEM;
+    assign RegWrite_MEM = WB_MEM[2];
+
+    //PCrelated
+    //RAM
+    RAM RAM_unit(ALUres_MEM[11:0], R2_MEM, Mode_MEM, Memwrite_MEM, 1, clk, clr, 1, MEMres);
+    assign MEMD_MEM = Byte_MEM ? {24'h0, MEMres[7:0]}: MEMres;
+    assign PC_plus_4_MEM = PC_MEM + 4;
+
+    assign Control_Sig_WB_IN = {WB_MEM,  Jal_MEM, Halt_MEM, Syscall_MEM};
+    MEM_WB MEM_WB_unit(clk, clr, enable, 0, 
+         PC_MEM, IR_MEM, ALUres_MEM,  MEMD_MEM, WR_MEM, Control_Sig_WB_IN, 
+         PC_WB,  IR_WB,  ALUres_WB,   MEMD_WB,  WR_WB,  Control_Sig_WB);
+    //---------------------------------WB---------------------------------------------------
+    assign {Regwrite_WB, Regdst_WB, Memtoreg_WB, Jal_WB, Halt_WB, Syscall_WB} = Control_Sig_WB;
+
+
+    Data_to_Din data2din_unit(MEMD_WB, ALUres_WB, PC_WB+4, Jal_WB, Memtoreg_WB, Din_WB);
+
+    PC PC_unit(PC_IF, Branch_out_EX, Jmp_EX, Jr_EX, R1_EX, J_addr_EX, PC_Branch_EX,  PC_next);
+    register PC_R_unit (PC_next, Load_use ^ enable, clk, clr, PC_IF);
+
+    PCenable PCenable_unit (Halt_WB, Go, enable);
+    
+    //计数
+    Counter_circle counter_circle1(clk, clr, enable, Branch_out_EX, Jmp_EX, Count_all, Count_branch, Count_jmp);
+
+endmodule
 
 module register(Data_in,Enable,clk,clr,Data_out);
     parameter WIDTH = 32;
