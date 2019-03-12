@@ -9,7 +9,7 @@ module ROM (Addr,Data_output);
     assign Data_output = mem[Addr[11:2]];
 
     initial begin
-        $readmemh("/media/rgy/win-file/document/computer/clone/hust-report/todo/working_on/test-rgy/rgy-fpga.hex",mem);
+        $readmemh("E:/test.hex",mem);
     end
 
 endmodule

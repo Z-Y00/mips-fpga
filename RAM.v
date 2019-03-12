@@ -1,33 +1,35 @@
 `timescale 1ns / 1ps
-module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out,mem_probe,probe);
+module RAM 
+    (Addr, data_in, Mode, memWrite,  clk, clr, data_out,mem_probe,probe);
     parameter 
         byte_mode       = 2'b00,
         dbyte_mode      = 2'b01,
-        word_mode       = 2'b10;
+        word_mode       = 2'b10,
+        Addr_Width      = 7;
 
     input [31:0] data_in;
-    input [11:0] Addr;
+    input [Addr_Width - 1 : 0] Addr;
     input [1:0] Mode;
     input memWrite,  clk, clr;
     output wire [31:0] data_out;
     output wire [31:0] mem_probe ;
     input  wire [3:0] probe;
     
-    reg [12:0] i;
-    reg [31:0] mem [2**10-1:0];
+    reg [Addr_Width-2:0] i;
+    reg [31:0] mem [2**(Addr_Width - 2)-1:0];
 
     wire [31:0] select;
 
-    wire [11:0]index;
+    wire [Addr_Width - 3:0]index;
     
     assign mem_probe=mem[probe];
     
-    assign index = Addr[11:2];
+    assign index = Addr[Addr_Width - 1:2];
     assign select = mem[index];
 
     // this would init the RAM
     initial begin
-        for(i = 0; i <= 2**10-1; i = i+1) begin
+        for(i = 0; i <= 2**(Addr_Width - 2)-1; i = i+1) begin
             mem[i] = 32'h0000;
         end 
     end
@@ -35,7 +37,7 @@ module RAM (Addr, data_in, Mode, memWrite,  clk, clr, data_out,mem_probe,probe);
     always @(posedge clk or posedge clr)
     begin
         if(clr)begin
-            for(i = 0; i <= 2**10-1; i = i+1) begin
+            for(i = 0; i <= 2**(Addr_Width - 2)-1; i = i+1) begin
                 mem[i] = 32'h0000;
             end 
         end

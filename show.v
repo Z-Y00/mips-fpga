@@ -46,11 +46,10 @@ endmodule
 
 module divider #(parameter N = 1_500_00)(
 	input clk,
-	output clk_N
+	output reg clk_N
 	);
 
 reg [31:0] counter = 0;
-reg clk_N = 0;//to 0 for sim
 
 always @(posedge clk)
 begin 

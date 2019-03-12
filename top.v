@@ -31,7 +31,7 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN,probe);
 	assign mod = (Show == 2'b00) ? 1'b1 : 1'b0;
 
 	show show(clk,mod,ledShow,SEG,AN);	
-	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp,mem_probe,probe);
+	MIPS_CPU MIPS_CPU(clr,Go,clk_N,Leddata,countAll,Count_branch,countJmp,probe,mem_probe);
 	
 	always @(*) begin 
 		case(Hz)
