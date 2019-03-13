@@ -50,13 +50,21 @@ module top_test();
    		//  # 120 inter2=1;
    		//  # 1 inter2=0;
 		//3->2-》1
+		//  # 30 Go = 1;
+		//  # 90 inter1=1;
+   		//  # 1 inter1=0;
+   		//  # 920 inter2=1;
+   		//  # 1 inter2=0;
+		//  # 920 inter3=1;
+   		//  # 1 inter3=0;
+		//2->3->1
 		 # 30 Go = 1;
-		 # 90 inter1=1;
-   		 # 1 inter1=0;
    		 # 920 inter2=1;
    		 # 1 inter2=0;
 		 # 920 inter3=1;
    		 # 1 inter3=0;
+		 # 90 inter1=1;
+   		 # 1 inter1=0;
 		//用来检测每个级别的中断
 		//  # 30 Go = 1;
 		//  # 1 inter1=1;

@@ -23,10 +23,6 @@ reg [31:0]Reg2[31:0];
 
 
 
-assign regProbe0=Reg[0];
-assign regProbe1=Reg[1];
-
-
 integer i;
 initial begin
   	for (i = 0; i<32 ; i = i+1)
@@ -42,25 +38,28 @@ begin
     	for (i = 0; i<32 ; i = i+1)
     		Reg0[i] = Reg[i];
 	end
-	if (enable_BackUp1) begin
+	else if (enable_BackUp1) begin
     	for (i = 0; i<32 ; i = i+1)
     		Reg1[i] = Reg[i];
 	end
-	if (enable_BackUp2) begin
+	else if (enable_BackUp2) begin
     	for (i = 0; i<32 ; i = i+1)
     		Reg2[i] = Reg[i];
 	end
 
 	//restore
 	if (restore_userBackUp) begin
+	#8
     	for (i = 0; i<32 ; i = i+1)
     		Reg[i] = Reg0[i];
 	end
-		if (restore_BackUp1) begin
+	else	if (restore_BackUp1) begin
+		#8
     	for (i = 0; i<32 ; i = i+1)
     		Reg[i] = Reg1[i];
 	end
-			if (restore_BackUp2) begin
+	else	if (restore_BackUp2) begin
+		#8
     	for (i = 0; i<32 ; i = i+1)
     		Reg[i] = Reg2[i];
 	end

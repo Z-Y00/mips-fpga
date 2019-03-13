@@ -17,23 +17,43 @@ module top(clr,Go,clk,Show,Hz,clk_N,SEG,AN,probe,inter1_in,inter2_in,inter3_in,i
     wire [31:0] mem_probe;
 	input [3:0] probe;
 	reg inter1,inter2,inter3;
+	reg[9:0] holder,count;
 	initial begin
-	 inter1=0;inter2=0;inter3=0;
+	 inter1=0;inter2=0;inter3=0;count=0;holder=0;
 	end
 	always @(posedge clk_N or posedge inter1_in  )
 	begin
-		if (inter1_in) begin
+		
+		if ((inter1_in)&&((inter_running2)||(inter_running3))) begin
+			holder=1;
+		end
+		else if (inter1_in) begin
 			inter1=1;
+		end
+
+		else if ((inter_running2==1)||(inter_running3==1)) begin
+			holder=holder;
+			count=0;
 		end
 		else begin
 			#8
-			inter1=0;
+			count=count+1;
+			if (count==2) begin
+				inter1=holder;
+			end
+			else if (count==3) begin
+			  inter1=0;
+			  holder=0;
+			end
 		end
 	end
 		always @(posedge clk_N or posedge inter2_in )
 	begin
 		if (inter2_in) begin
 			inter2=1;
+		end
+		else if ((inter_running3==1)) begin
+			inter2=inter2;
 		end
 		else begin
 			#8
