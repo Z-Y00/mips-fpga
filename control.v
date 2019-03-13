@@ -1,14 +1,16 @@
 `timescale 1ns / 1ps
+//注意！ 每个人把不是自己的指令都删了！
 module control(
     input [5:0] OP,
     input [5:0]FUNC,
     output wire  [3:0]ALU_OP,
     output wire  Memtoreg, Memwrite, Alu_src, Regwrite, Syscall, Signedext, Regdst, Beq, Bne, Jr, Jmp, Jal, Shift,  Bgtz, 
     output wire[1:0]Mode
+	//output wire Byte, Signext2//LB , LBU, LH 专门用的，其他人可以删了
     );
-    reg SLL, SRA, SRL, ADD, ADDU, SUB, AND, OR, NOR, SLT, SLTU, JR, SYSCALL, SRLV, SUBU;
+    reg SLL, SRA, SRL, ADD, ADDU, SUB, AND, OR, NOR, SLT, SLTU, JR, SYSCALL, SLLV;
     reg R_type;
-	wire J,JAL,BEQ,BNE,BGTZ,ADDI,ADDIU,SLTI,ANDI,ORI,LW,SW,SB;
+	wire J,JAL,BEQ,BNE,BLEZ,BGTZ,ADDI,ADDIU,SLTI,SLTIU,ANDI,ORI,LW,SW,SH;
     initial begin
 		SLL = 0; 
 		SRA = 0; 
@@ -23,33 +25,33 @@ module control(
 		SLTU = 0; 
 		JR = 0; 
 		SYSCALL = 0;  
-		SRLV = 0; 
+		SLLV = 0; 
 	end
 
-	assign  Mode = (SB)? 2'b00 : 2'b10;
+	assign  Mode = (SH)? 2'b01 : 2'b10;
 	assign  Memtoreg = LW ;
-    assign  Memwrite = SW || SB;
-    assign  Alu_src = ADDI || ANDI || ADDIU || SLTI || ORI || LW || SW || SB;
-    assign  Regwrite = R_type || JAL || ADDI || ANDI || ADDIU || SLTI || ORI || LW;
+    assign  Memwrite = SW || SH;
+    assign  Alu_src = ADDI || ANDI || ADDIU || SLTI || ORI || LW || SW || SLTIU || SH;
+    assign  Regwrite = R_type || JAL || ADDI || ANDI || ADDIU || SLTI || ORI || LW || SLTIU ;
     assign  Syscall = SYSCALL;
-    assign  Signedext = ADDI || ADDIU || SLTI || LW || SW || SB || BNE || Beq || SUBU || BGTZ;
+    assign  Signedext = ADDI || ADDIU || SLTI || LW || SW || SH;
     assign  Regdst = R_type;
     assign  Beq = BEQ;
     assign  Bne = BNE;
     assign  Jr = JR;
-    assign  Jmp = J;
+    assign  Jmp = JAL || Jr || J;
     assign  Jal = JAL;
-    assign  Shift = SRLV ;
+    assign  Shift = SLLV ;
     assign  Bgtz = BGTZ;
-	assign  ALU_OP = (ADD || ADDU || ADDI || ADDIU || LW || SW ||SB) ? 5 :
-                (SLL) ? 0 :
+	assign  ALU_OP = (ADD || ADDU || ADDI || ADDIU || LW || SW ||SH) ? 5 :
+                (SLL || SLLV ) ? 0 :
                 (SRA ) ? 1 :
-                (SRL || SRLV) ? 2 :
-                (SUB || SUBU) ? 6 :
+                (SRL ) ? 2 :
+                (SUB ) ? 6 :
                 (AND || ANDI) ? 7 :
                 (OR || ORI) ? 8 :
                 (SLT || SLTI) ? 11 :
-                (SLTU) ? 12 : 
+                (SLTU || SLTIU) ? 12 : 
                 NOR ? 10 : 13;
 
     assign  J = (OP == 2);
@@ -60,21 +62,21 @@ module control(
     assign  ADDI = (OP == 8);
     assign  ADDIU = (OP == 9);
     assign  SLTI = (OP == 10);
+    assign  SLTIU = (OP == 11);
     assign  ANDI = (OP == 12);
     assign  ORI = (OP == 13);
     assign  LW = (OP == 35);
-    assign  SB = (OP == 40);
+    assign  SH = (OP == 41);
     assign  SW = (OP == 43);
 
 	always @(*) begin	
-		// # 3
         if (OP == 0 && SYSCALL == 0)begin
             R_type = 1;
         end
         else R_type = 0;
 	end
 	
-	always @(*) begin
+	always @(* ) begin
 		if(OP!=0)begin
 			SLL = 0;
 			SRA = 0;
@@ -89,20 +91,18 @@ module control(
 			SLTU = 0;
 			JR = 0;
 			SYSCALL = 0;
-			SRLV = 0;
-			SUBU = 0;
+			SLLV = 0;
 		end		
 		else begin
 		SLL = (FUNC == 0);
 		SRL = (FUNC == 2);
 		SRA = (FUNC == 3);
-		SRLV = (FUNC == 6);
+		SLLV = (FUNC == 4);
 		JR = (FUNC == 8);
 		SYSCALL = (FUNC == 12);
 		ADD = (FUNC == 32);
 		SUB = (FUNC == 34);
 		ADDU = (FUNC == 33);
-		SUBU = (FUNC == 35);
 		AND = (FUNC == 36);
 		OR = (FUNC == 37);
 		NOR = (FUNC == 39);
